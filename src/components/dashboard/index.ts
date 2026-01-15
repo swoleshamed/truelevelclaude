@@ -7,3 +7,4 @@
 export { TankVisualization, TankGrid } from './TankVisualization';
 export { LocationSwitcher } from './LocationSwitcher';
 export { CostPerCarChart } from './CostPerCarChart';
+export { VisitReminder, VisitReminderList } from './VisitReminder';

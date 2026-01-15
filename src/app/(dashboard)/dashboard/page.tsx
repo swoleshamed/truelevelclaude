@@ -1,152 +1,127 @@
 // ===========================================
 // FILE: src/app/(dashboard)/dashboard/page.tsx
-// PURPOSE: Main dashboard page (placeholder for Phase 4)
+// PURPOSE: Main dashboard page - routes to role-specific dashboards
 // PRD REFERENCE: PRD Section 6 - Dashboards
 // ===========================================
 
 import React from 'react';
 import { auth } from '@/lib/auth';
-import { PageContainer, PageHeader } from '@/components/layout';
-import { Card } from '@/components/ui';
+import { redirect } from 'next/navigation';
+import { DistributorDashboard } from './DistributorDashboard';
+import { OrganizationDashboard } from './OrganizationDashboard';
+import { SiteDashboard } from './SiteDashboard';
 
 /**
  * Dashboard Page
  *
- * WHY: Main landing page after login. Shows different content based on user role.
+ * WHY: Main landing page after login. Routes to role-specific dashboard views
+ * based on user's role and permissions.
  *
- * PLACEHOLDER (Phase 3): This is a minimal placeholder page that will be
- * fully implemented in Phase 4 with:
- * - Location switcher
- * - Tab-based navigation
- * - Role-specific dashboards (Distributor, Org, Site)
- * - Charts, monitoring cards, activity feeds
+ * ROUTING LOGIC (PRD Section 6):
+ * - DISTRIBUTOR_ADMIN → DistributorDashboard (can view all clients)
+ * - DISTRIBUTOR_USER → DistributorDashboard (limited to assigned orgs)
+ * - ORG_ADMIN → OrganizationDashboard (can view all org sites)
+ * - ORG_USER → OrganizationDashboard (limited to assigned sites)
+ * - SITE_USER → SiteDashboard (single site only)
  *
- * BUSINESS LOGIC (PRD Section 6):
- * - Distributor: Calendar, reminders, portfolio chart, site monitoring
- * - Organization: Site comparison chart, site cards
- * - Site: Performance chart, inventory tanks
+ * DATA FETCHING:
+ * - Server-side: Fetch user's org/distributor/site associations
+ * - Pass to client components for rendering
+ * - Client components handle location context changes
+ *
+ * EXAMPLE:
+ * - Distributor sees: List of all client organizations
+ * - Org admin sees: List of all sites in their organization
+ * - Site user sees: Single site dashboard (tanks, analytics)
  */
 export default async function DashboardPage() {
+  // Get authenticated session
   const session = await auth();
 
   if (!session) {
-    return null; // Should not happen due to layout auth check
+    redirect('/login');
   }
 
-  const { firstName, role } = session.user;
+  const { id: userId, firstName, lastName, role } = session.user;
 
-  return (
-    <PageContainer>
-      <PageHeader
-        title={`Welcome back, ${firstName}!`}
-        subtitle={`You're logged in as ${role.replace(/_/g, ' ')}`}
+  /**
+   * Route to appropriate dashboard based on role
+   * WHY: Each role has different data needs and UI requirements
+   */
+
+  // DISTRIBUTOR ROLES: Show client portfolio
+  if (role === 'DISTRIBUTOR_ADMIN' || role === 'DISTRIBUTOR_USER') {
+    // TODO Phase 5: Fetch distributor data from API
+    // const distributor = await prisma.distributor.findFirst({
+    //   where: { users: { some: { id: userId } } }
+    // });
+
+    return (
+      <DistributorDashboard
+        user={{ firstName, lastName, role }}
       />
+    );
+  }
 
-      <div className="py-8 space-y-6">
-        {/* Phase status card */}
-        <Card>
-          <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary bg-opacity-10 rounded-full mb-4">
-              <svg
-                className="w-8 h-8 text-primary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold font-heading text-text-primary mb-2">
-              Phase 3 Complete! 🎉
-            </h2>
-            <p className="text-text-secondary mb-6">
-              Authentication system is fully functional.
-            </p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-success bg-opacity-10 rounded-lg">
-              <span className="text-sm font-medium text-success">
-                ✓ User registration
-              </span>
-              <span className="text-sm font-medium text-success">
-                ✓ Email/password login
-              </span>
-              <span className="text-sm font-medium text-success">
-                ✓ Protected routes
-              </span>
-            </div>
-          </div>
-        </Card>
+  // ORGANIZATION ROLES: Show sites overview
+  if (role === 'ORG_ADMIN' || role === 'ORG_USER') {
+    // TODO Phase 5: Fetch organization data from API
+    // const organization = await prisma.organization.findFirst({
+    //   where: { users: { some: { id: userId } } },
+    //   include: { sites: true }
+    // });
 
-        {/* Coming soon card */}
-        <Card>
-          <h3 className="text-lg font-semibold text-text-primary mb-4">
-            Coming in Phase 4: Dashboard Implementation
-          </h3>
-          <ul className="space-y-2 text-text-secondary">
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Location switcher (All Locations / Organization / Site)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Tab-based navigation (changes based on location context)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Dashboard views (Distributor, Organization, Site)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Cost per car charts</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Tank visualizations</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-primary mt-0.5">•</span>
-              <span>Visit reminders and calendar</span>
-            </li>
-          </ul>
-        </Card>
+    // Mock data for now
+    const organizationId = 'mock-org-1';
+    const organizationName = 'ABC Car Wash';
 
-        {/* User info card */}
-        <Card>
-          <h3 className="text-lg font-semibold text-text-primary mb-4">
-            Your Account Information
-          </h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-text-secondary">Name:</span>
-              <span className="text-text-primary font-medium">
-                {session.user.firstName} {session.user.lastName}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary">Email:</span>
-              <span className="text-text-primary font-medium">
-                {session.user.email}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary">Role:</span>
-              <span className="text-text-primary font-medium">
-                {session.user.role.replace(/_/g, ' ')}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-text-secondary">User ID:</span>
-              <span className="text-text-primary font-mono text-xs">
-                {session.user.id}
-              </span>
-            </div>
-          </div>
-        </Card>
+    return (
+      <OrganizationDashboard
+        user={{ firstName, lastName, role }}
+        organizationId={organizationId}
+        organizationName={organizationName}
+      />
+    );
+  }
+
+  // SITE ROLE: Show single site dashboard
+  if (role === 'SITE_USER') {
+    // TODO Phase 5: Fetch site assignment from API
+    // const siteAssignment = await prisma.siteUser.findFirst({
+    //   where: { userId },
+    //   include: {
+    //     site: {
+    //       include: { organization: true }
+    //     }
+    //   }
+    // });
+
+    // Mock data for now
+    const siteId = 'mock-site-1';
+    const siteName = 'Main Street Location';
+    const organizationName = 'ABC Car Wash';
+
+    return (
+      <SiteDashboard
+        user={{ firstName, lastName, role }}
+        siteId={siteId}
+        siteName={siteName}
+        organizationName={organizationName}
+      />
+    );
+  }
+
+  // Fallback: Unknown role
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <h2 className="text-lg font-semibold text-yellow-800 mb-2">
+          Unknown User Role
+        </h2>
+        <p className="text-yellow-700">
+          Your account role ({role}) is not recognized. Please contact support.
+        </p>
       </div>
-    </PageContainer>
+    </div>
   );
 }

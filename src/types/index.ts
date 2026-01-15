@@ -183,11 +183,25 @@ export interface ChemicalCostBreakdown {
  * Current location context for navigation
  * WHY: Tab-based navigation changes based on location level
  * PRD REFERENCE: PRD Section 5 - Navigation Architecture
+ *
+ * LOCATION TYPES:
+ * - ALL: View all organizations/sites (distributor only)
+ * - ORG: View specific organization with all sites
+ * - SITE: View specific site details
  */
-export type LocationLevel = 'all' | 'organization' | 'site';
-
-export interface LocationContext {
-  level: LocationLevel;
-  organizationId?: string;
-  siteId?: string;
-}
+export type LocationContext =
+  | {
+      type: 'ALL';
+    }
+  | {
+      type: 'ORG';
+      organizationId: string;
+      organizationName: string;
+    }
+  | {
+      type: 'SITE';
+      siteId: string;
+      siteName: string;
+      organizationId: string;
+      organizationName: string;
+    };
