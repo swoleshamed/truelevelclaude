@@ -149,14 +149,36 @@ truelevelclaude/
 - [x] Utility functions (inch-to-gallon conversion, tank status, formatting)
 - [x] TypeScript type definitions
 
-### 🔄 Phase 2: Core UI Components (IN PROGRESS)
+### ✅ Phase 2: Core UI Components (COMPLETE)
 
-**Next Steps:**
-- [ ] Configure Tailwind design tokens
-- [ ] Build base UI components (Button, Input, Select, etc.)
-- [ ] Create layout components (Header, BottomNav, FAB)
-- [ ] Implement tank visualization component
-- [ ] Build location switcher
+**2.1 Base Form Components**
+- [x] Button (primary, secondary, destructive, ghost variants)
+- [x] Input (with label, error, helper text)
+- [x] Select (with custom arrow and placeholder)
+- [x] Checkbox (with label and description)
+
+**2.2 Container Components**
+- [x] Card (with header, content, footer)
+- [x] Modal (full-screen mobile, centered desktop)
+- [x] Tabs (pill-style with controlled/uncontrolled modes)
+
+**2.3 Status & Interaction Components**
+- [x] StatusBadge (NORMAL/LOW_STOCK/CRITICAL)
+- [x] StatusDot (for calendar indicators)
+- [x] NumberStepper (for count inputs)
+
+**2.4 Dashboard Components**
+- [x] TankVisualization (SVG tank with dynamic fill)
+- [x] LocationSwitcher (dropdown navigation)
+- [x] CostPerCarChart (Recharts line chart)
+
+**2.5 Layout Components**
+- [x] Header (logo, notifications, user menu)
+- [x] BottomNav (mobile navigation bar)
+- [x] PageContainer, PageHeader, PageSection
+- [x] FAB (context-aware floating action button)
+
+### 🔄 Phase 3: Authentication Pages (NEXT)
 
 ### 📋 Upcoming Phases
 
@@ -313,4 +335,4 @@ For questions or issues, contact the development team.
 ---
 
 **Last Updated:** January 15, 2026
-**Phase Status:** 1/10 Complete ✅
+**Phase Status:** 2/10 Complete ✅✅
