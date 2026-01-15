@@ -8,6 +8,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -17,7 +19,6 @@ interface HeaderProps {
     email: string | null;
     role: string;
   };
-  onSignOut?: () => void;
   className?: string;
 }
 
@@ -61,11 +62,21 @@ interface HeaderProps {
  * ```
  *
  * @param user - Current user data
- * @param onSignOut - Callback when user signs out
  */
-export function Header({ user, onSignOut, className }: HeaderProps) {
+export function Header({ user, className }: HeaderProps) {
+  const router = useRouter();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Handle user sign out
+   * WHY: Sign out user and redirect to login page
+   */
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push('/login');
+    router.refresh();
+  };
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -246,7 +257,7 @@ export function Header({ user, onSignOut, className }: HeaderProps) {
                     {/* Sign out */}
                     <div className="border-t border-border-light py-2">
                       <button
-                        onClick={onSignOut}
+                        onClick={handleSignOut}
                         className="w-full px-4 py-2 text-left text-sm text-error hover:bg-bg-tertiary transition-colors duration-150 font-medium"
                       >
                         🚪 SIGN OUT
