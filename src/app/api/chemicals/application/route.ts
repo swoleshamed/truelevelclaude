@@ -14,7 +14,8 @@ import { z } from 'zod';
  */
 const chemicalApplicationSchema = z.object({
   chemicalSiteConfigId: z.string(),
-  tankId: z.string().min(1, 'Tank ID is required'),
+  applicationNumber: z.number().int().positive(),
+  applicationName: z.string().optional(),
   injectorTypeId: z.string(),
   tipTypeId: z.string(),
 });
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
         injectorType: true,
         tipType: true,
       },
-      orderBy: { tankId: 'asc' },
+      orderBy: { applicationNumber: 'asc' },
     });
 
     return NextResponse.json(applications);
@@ -90,8 +91,8 @@ export async function GET(request: NextRequest) {
  * injector and tip configurations for accurate GPM-weighted calculations.
  *
  * BUSINESS LOGIC:
- * - Unique constraint: (chemicalSiteConfigId, tankId)
- * - One chemical per tank
+ * - Unique constraint: (chemicalSiteConfigId, applicationNumber)
+ * - One chemical per application slot
  * - Requires injector and tip selection
  * - Equipment can be changed via visit logs
  *
