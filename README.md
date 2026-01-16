@@ -244,7 +244,7 @@ truelevelclaude/
 - [x] VisitReminderList for compact view
 - [x] Quick navigation to site details
 
-### 🚧 Phase 5: Chemical Management (IN PROGRESS)
+### ✅ Phase 5: Chemical Management (COMPLETE)
 
 **5.1 Chemical Master Catalog API**
 - [x] GET/POST /api/chemicals (list/create)
@@ -259,29 +259,33 @@ truelevelclaude/
 
 **5.3 Site Chemical Config API**
 - [x] GET/POST /api/chemicals/site-config
+- [x] GET/POST /api/chemicals/application (tank assignments)
 - [x] Alert threshold configuration
-- [x] Tank application associations
+- [x] Equipment API endpoints (injectors and tips)
 
 **5.4 Distributor Chemical Catalog UI**
 - [x] Chemical list with search and filters
 - [x] Group by chemical type
 - [x] View/edit/delete interfaces
 - [x] FAB integration for quick add
-- [ ] Chemical creation form
-- [ ] Chemical edit form
+- [x] Chemical creation form with validation
+- [x] Chemical edit form with pre-fill
+- [x] Delete confirmation modal
 
 **5.5 Organization Chemical Catalog UI**
 - [x] View available chemicals from distributor
 - [x] Display pricing and container types
 - [x] API integration with ChemicalOrgConfig
-- [ ] Configure chemicals for sites
+- [x] Configure chemicals for sites
+- [x] SiteChemicalConfigForm with site selection
 
 **5.6 Site Chemical Catalog UI**
 - [x] View configured chemicals
 - [x] Display alert thresholds
 - [x] Show tank applications
-- [ ] Manage injector/tip assignments
-- [ ] Chemical application forms
+- [x] Manage injector/tip assignments
+- [x] ChemicalSiteApplicationForm with equipment selection
+- [x] Display GPM and dilution ratios
 
 ### 📋 Upcoming Phases
 
