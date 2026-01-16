@@ -14,9 +14,10 @@ import { z } from 'zod';
  */
 const chemicalApplicationSchema = z.object({
   chemicalSiteConfigId: z.string(),
-  tankId: z.string().min(1, 'Tank ID is required'),
+  applicationNumber: z.number().int().min(1, 'Application number is required'),
   injectorTypeId: z.string(),
   tipTypeId: z.string(),
+  applicationName: z.string().optional(),
 });
 
 /**
