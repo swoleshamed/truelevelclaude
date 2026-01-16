@@ -32,7 +32,7 @@ export type ContainerType =
   | 'DRUM_30GAL'
   | 'DRUM_55GAL';
 
-export type WashType = 'EXPRESS' | 'FLEX' | 'FULL_SERVE' | 'SELF_SERVE';
+export type WashType = 'EXPRESS' | 'FULL_SERVICE' | 'HAND_WASH' | 'IN_BAY_AUTOMATIC' | 'TOUCHLESS_IBA';
 
 // ===========================================
 // USER & AUTH TYPES
