@@ -169,6 +169,9 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error('Registration error:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    console.error('Error meta:', error.meta);
 
     // Handle validation errors
     if (error.name === 'ZodError') {
@@ -183,15 +186,36 @@ export async function POST(request: NextRequest) {
 
     // Handle Prisma unique constraint violations
     if (error.code === 'P2002') {
+      // Check which field caused the constraint violation
+      const target = error.meta?.target;
+      if (Array.isArray(target) && target.includes('phone')) {
+        return NextResponse.json(
+          { error: 'Phone number already registered' },
+          { status: 400 }
+        );
+      }
       return NextResponse.json(
         { error: 'Email already registered' },
         { status: 400 }
       );
     }
 
-    // Generic error response
+    // Handle Prisma connection errors
+    if (error.code === 'P1001' || error.code === 'P1002') {
+      console.error('Database connection error');
+      return NextResponse.json(
+        { error: 'Unable to connect to database. Please try again later.' },
+        { status: 503 }
+      );
+    }
+
+    // Generic error response with more context in development
+    const errorMessage = process.env.NODE_ENV === 'development'
+      ? `Registration failed: ${error.message}`
+      : 'Registration failed. Please try again.';
+
     return NextResponse.json(
-      { error: 'Registration failed. Please try again.' },
+      { error: errorMessage },
       { status: 500 }
     );
   }

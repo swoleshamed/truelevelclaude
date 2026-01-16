@@ -35,11 +35,16 @@ export const emailSchema = z
 /**
  * Phone validation schema
  * WHY: Validate phone number format (optional field)
+ * FIXED: Handle empty strings from React Hook Form - transforms to undefined
+ * Also accepts properly formatted phone numbers (E.164 format or just digits)
  */
 export const phoneSchema = z
-  .string()
-  .regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format')
-  .optional();
+  .union([
+    z.literal(''),
+    z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format'),
+  ])
+  .optional()
+  .transform((val) => (val === '' || val === undefined) ? undefined : val);
 
 /**
  * PIN validation schema
