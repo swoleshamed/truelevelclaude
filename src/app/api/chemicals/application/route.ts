@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         injectorType: true,
         tipType: true,
       },
-      orderBy: { tankId: 'asc' },
+      orderBy: { applicationNumber: 'asc' },
     });
 
     return NextResponse.json(applications);
