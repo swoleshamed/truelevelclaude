@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
     const packages = await prisma.washPackage.findMany({
       where: {
         siteId: validatedQuery.siteId,
-        active: true,
+        isActive: true,
       },
       include: {
         items: {
