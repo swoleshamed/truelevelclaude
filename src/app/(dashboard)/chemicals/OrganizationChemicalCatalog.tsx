@@ -10,6 +10,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageContainer, PageHeader } from '@/components/layout';
 import { Card } from '@/components/ui';
+import { SiteChemicalConfigForm } from '@/components/forms';
 
 interface OrganizationChemicalCatalogProps {
   organizationId: string;
@@ -41,6 +42,8 @@ export function OrganizationChemicalCatalog({
 }: OrganizationChemicalCatalogProps) {
   const [loading, setLoading] = useState(true);
   const [orgConfigs, setOrgConfigs] = useState<any[]>([]);
+  const [showConfigForm, setShowConfigForm] = useState(false);
+  const [selectedConfig, setSelectedConfig] = useState<any>(null);
 
   useEffect(() => {
     fetchOrgConfigs();
@@ -64,6 +67,17 @@ export function OrganizationChemicalCatalog({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenConfigForm = (config: any) => {
+    setSelectedConfig(config);
+    setShowConfigForm(true);
+  };
+
+  const handleConfigSuccess = () => {
+    fetchOrgConfigs();
+    setShowConfigForm(false);
+    setSelectedConfig(null);
   };
 
   if (loading) {
@@ -122,10 +136,36 @@ export function OrganizationChemicalCatalog({
                     </p>
                   </div>
                 </div>
+
+                {canEdit && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <button
+                      onClick={() => handleOpenConfigForm(config)}
+                      className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      Configure for Site
+                    </button>
+                  </div>
+                )}
               </div>
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Site Chemical Config Form */}
+      {selectedConfig && (
+        <SiteChemicalConfigForm
+          isOpen={showConfigForm}
+          onClose={() => {
+            setShowConfigForm(false);
+            setSelectedConfig(null);
+          }}
+          onSuccess={handleConfigSuccess}
+          chemicalOrgConfigId={selectedConfig.id}
+          chemicalName={selectedConfig.chemicalMaster.name}
+          organizationId={organizationId}
+        />
       )}
     </PageContainer>
   );

@@ -10,6 +10,7 @@
 import React, { useState, useEffect } from 'react';
 import { PageContainer, PageHeader } from '@/components/layout';
 import { Card, StatusBadge } from '@/components/ui';
+import { ChemicalSiteApplicationForm } from '@/components/forms';
 
 interface SiteChemicalCatalogProps {
   siteId: string;
@@ -42,6 +43,8 @@ export function SiteChemicalCatalog({
 }: SiteChemicalCatalogProps) {
   const [loading, setLoading] = useState(true);
   const [siteConfigs, setSiteConfigs] = useState<any[]>([]);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [selectedConfig, setSelectedConfig] = useState<any>(null);
 
   useEffect(() => {
     fetchSiteConfigs();
@@ -65,6 +68,17 @@ export function SiteChemicalCatalog({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenApplicationForm = (config: any) => {
+    setSelectedConfig(config);
+    setShowApplicationForm(true);
+  };
+
+  const handleApplicationSuccess = () => {
+    fetchSiteConfigs();
+    setShowApplicationForm(false);
+    setSelectedConfig(null);
   };
 
   if (loading) {
@@ -155,11 +169,22 @@ export function SiteChemicalCatalog({
                             key={app.id}
                             className="text-xs text-text-secondary"
                           >
-                            {app.tankId} - {app.injectorType.name} (
+                            Tank {app.tankId} - {app.injectorType.name} (
                             {app.injectorType.gpm} GPM) + {app.tipType.name}
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+
+                  {canEdit && (
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <button
+                        onClick={() => handleOpenApplicationForm(config)}
+                        className="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Assign to Tank
+                      </button>
                     </div>
                   )}
                 </div>
@@ -167,6 +192,20 @@ export function SiteChemicalCatalog({
             );
           })}
         </div>
+      )}
+
+      {/* Chemical Site Application Form */}
+      {selectedConfig && (
+        <ChemicalSiteApplicationForm
+          isOpen={showApplicationForm}
+          onClose={() => {
+            setShowApplicationForm(false);
+            setSelectedConfig(null);
+          }}
+          onSuccess={handleApplicationSuccess}
+          chemicalSiteConfigId={selectedConfig.id}
+          chemicalName={selectedConfig.chemicalOrgConfig.chemicalMaster.name}
+        />
       )}
     </PageContainer>
   );

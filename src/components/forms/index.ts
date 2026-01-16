@@ -5,3 +5,5 @@
 // ===========================================
 
 export { ChemicalForm } from './ChemicalForm';
+export { SiteChemicalConfigForm } from './SiteChemicalConfigForm';
+export { ChemicalSiteApplicationForm } from './ChemicalSiteApplicationForm';
