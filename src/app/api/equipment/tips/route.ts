@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     const tips = await prisma.tipType.findMany({
-      orderBy: [{ system: 'asc' }, { dilutionRatio: 'asc' }],
+      orderBy: [{ category: 'asc' }, { displayOrder: 'asc' }],
     });
 
     return NextResponse.json(tips);
