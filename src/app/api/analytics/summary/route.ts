@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
     const chemicalsCount = await prisma.chemicalSiteConfig.count({
       where: {
         site: siteFilter,
-        active: true,
+        isActive: true,
       },
     });
 
