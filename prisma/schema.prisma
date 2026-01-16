@@ -1,0 +1,557 @@
+// ===========================================
+// FILE: prisma/schema.prisma
+// PURPOSE: Complete database schema for TrueLevel V0
+// PRD REFERENCE: Technical Spec - Database Schema
+// ===========================================
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// ENUMS
+// ===========================================
+
+enum UserRole {
+  DISTRIBUTOR_ADMIN
+  DISTRIBUTOR_USER
+  ORG_ADMIN
+  SITE_MANAGER
+  SITE_USER
+}
+
+enum ChemicalType {
+  PREP_SOAP
+  HIGH_PH_PRESOAK
+  LOW_PH_PRESOAK
+  WHEEL_TIRE_CLEANER
+  FOAM_DETERGENT
+  FRAGRANCE
+  TRI_COLOR
+  PROTECTANT
+  DRY_AGENT
+  TIRE_SHINE
+  OTHER
+}
+
+enum ContainerType {
+  HOLDING_TANK_10GAL
+  HOLDING_TANK_15GAL
+  HOLDING_TANK_20GAL
+  HOLDING_TANK_CUSTOM
+  JUG_1GAL
+  JUG_2_5GAL
+  PAIL_5GAL
+  DRUM_15GAL
+  DRUM_30GAL
+  DRUM_55GAL
+}
+
+enum WashType {
+  EXPRESS
+  FULL_SERVICE
+  HAND_WASH
+  IN_BAY_AUTOMATIC
+  TOUCHLESS_IBA
+}
+
+enum InjectorSystem {
+  HYDROFLEX
+  HYDROMINDER
+}
+
+enum TipCategory {
+  STANDARD
+  HYDROMINDER
+  DIAL
+}
+
+enum ScheduledVisitStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+// ===========================================
+// CORE ENTITIES
+// ===========================================
+
+// Distributor organizations (chemical suppliers)
+model Distributor {
+  id           String   @id @default(uuid())
+  companyName  String   @map("company_name")
+  contactEmail String?  @map("contact_email")
+  contactPhone String?  @map("contact_phone")
+  address      String?
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  users         User[]
+  organizations Organization[]
+  chemicals     ChemicalMaster[]
+
+  @@map("distributors")
+}
+
+// Car wash organizations (distributor clients or self-signup)
+model Organization {
+  id            String       @id @default(uuid())
+  name          String
+  distributorId String?      @map("distributor_id")
+  contactEmail  String?      @map("contact_email")
+  contactPhone  String?      @map("contact_phone")
+  address       String?
+  isActive      Boolean      @default(true) @map("is_active")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  distributor        Distributor?               @relation(fields: [distributorId], references: [id], onDelete: SetNull)
+  users              User[]
+  sites              Site[]
+  chemicalConfigs    ChemicalOrgConfig[]
+  packageTemplates   WashPackageTemplate[]
+
+  @@index([distributorId])
+  @@map("organizations")
+}
+
+// Sites (individual car wash locations)
+model Site {
+  id                 String   @id @default(uuid())
+  organizationId     String   @map("organization_id")
+  name               String
+  address            String?
+  washType           WashType @map("wash_type")
+  visitReminderDays  Int      @default(14) @map("visit_reminder_days")
+  isActive           Boolean  @default(true) @map("is_active")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  organization      Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userAccess        UserSiteAccess[]
+  chemicalConfigs   ChemicalSiteConfig[]
+  washPackages      WashPackage[]
+  visitLogs         VisitLog[]
+  scheduledVisits   ScheduledVisit[]
+
+  @@index([organizationId])
+  @@map("sites")
+}
+
+// Users
+model User {
+  id             String    @id @default(uuid())
+  email          String?   @unique
+  phone          String?   @unique
+  passwordHash   String    @map("password_hash")
+  pinHash        String?   @map("pin_hash")
+  role           UserRole
+  firstName      String    @map("first_name")
+  lastName       String    @map("last_name")
+  distributorId  String?   @map("distributor_id")
+  organizationId String?   @map("organization_id")
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  lastLoginAt    DateTime? @map("last_login_at")
+
+  // Relations
+  distributor         Distributor?            @relation(fields: [distributorId], references: [id], onDelete: Cascade)
+  organization        Organization?           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  siteAccess          UserSiteAccess[]
+  visitLogs           VisitLog[]
+  scheduledVisits     ScheduledVisit[]
+  chemicalMastersCreated ChemicalMaster[]     @relation("ChemicalCreatedBy")
+  chemicalOrgConfigsCreated ChemicalOrgConfig[] @relation("ChemicalOrgConfigCreatedBy")
+  chemicalSiteConfigsCreated ChemicalSiteConfig[] @relation("ChemicalSiteConfigCreatedBy")
+  packageTemplatesCreated WashPackageTemplate[] @relation("PackageTemplateCreatedBy")
+
+  @@index([email])
+  @@index([phone])
+  @@index([distributorId])
+  @@index([organizationId])
+  @@map("users")
+}
+
+// Site access for users (Site Managers and Site Users)
+model UserSiteAccess {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  siteId    String   @map("site_id")
+  grantedAt DateTime @default(now()) @map("granted_at")
+  grantedBy String?  @map("granted_by")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, siteId])
+  @@index([userId])
+  @@index([siteId])
+  @@map("user_site_access")
+}
+
+// ===========================================
+// CHEMICAL MANAGEMENT
+// ===========================================
+
+// Distributor chemical catalog (templates)
+model ChemicalMaster {
+  id            String        @id @default(uuid())
+  distributorId String?       @map("distributor_id")
+  name          String
+  type          ChemicalType
+  manufacturer  String?
+  isActive      Boolean       @default(true) @map("is_active")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  createdBy     String?       @map("created_by")
+
+  // Relations
+  distributor   Distributor?        @relation(fields: [distributorId], references: [id], onDelete: Cascade)
+  creator       User?               @relation("ChemicalCreatedBy", fields: [createdBy], references: [id])
+  orgConfigs    ChemicalOrgConfig[]
+
+  @@index([distributorId])
+  @@index([type])
+  @@map("chemical_masters")
+}
+
+// Organization-level chemical configuration
+model ChemicalOrgConfig {
+  id                        String        @id @default(uuid())
+  chemicalMasterId          String        @map("chemical_master_id")
+  organizationId            String        @map("organization_id")
+  primaryContainer          ContainerType @map("primary_container")
+  primaryContainerSizeGallons Decimal?    @map("primary_container_size_gallons") @db.Decimal(6, 2)
+  backstockContainer        ContainerType @map("backstock_container")
+  costPerContainer          Decimal       @map("cost_per_container") @db.Decimal(10, 2)
+  costPerGallon             Decimal       @map("cost_per_gallon") @db.Decimal(10, 2)
+  isActive                  Boolean       @default(true) @map("is_active")
+  createdAt                 DateTime      @default(now()) @map("created_at")
+  updatedAt                 DateTime      @updatedAt @map("updated_at")
+  createdBy                 String?       @map("created_by")
+
+  // Relations
+  chemicalMaster  ChemicalMaster              @relation(fields: [chemicalMasterId], references: [id], onDelete: Cascade)
+  organization    Organization                @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator         User?                       @relation("ChemicalOrgConfigCreatedBy", fields: [createdBy], references: [id])
+  siteConfigs     ChemicalSiteConfig[]
+  templateChemicals WashPackageTemplateChemical[]
+
+  @@unique([chemicalMasterId, organizationId])
+  @@index([organizationId])
+  @@index([chemicalMasterId])
+  @@map("chemical_org_configs")
+}
+
+// Site-level chemical configuration
+model ChemicalSiteConfig {
+  id                     String   @id @default(uuid())
+  chemicalOrgConfigId    String   @map("chemical_org_config_id")
+  siteId                 String   @map("site_id")
+  alertThresholdGallons  Decimal? @map("alert_threshold_gallons") @db.Decimal(6, 2)
+  isActive               Boolean  @default(true) @map("is_active")
+  addedAt                DateTime @default(now()) @map("added_at")
+  addedBy                String?  @map("added_by")
+
+  // Relations
+  chemicalOrgConfig ChemicalOrgConfig          @relation(fields: [chemicalOrgConfigId], references: [id], onDelete: Cascade)
+  site              Site                       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  addedByUser       User?                      @relation("ChemicalSiteConfigCreatedBy", fields: [addedBy], references: [id])
+  applications      ChemicalSiteApplication[]
+  visitLogEntries   VisitLogChemicalEntry[]
+
+  @@unique([chemicalOrgConfigId, siteId])
+  @@index([siteId])
+  @@map("chemical_site_configs")
+}
+
+// ===========================================
+// REFERENCE DATA
+// ===========================================
+
+// Injector types (Hydroflex and Hydrominder)
+model InjectorType {
+  id           String         @id @default(uuid())
+  system       InjectorSystem
+  name         String
+  gpm          Decimal        @db.Decimal(5, 2)
+  displayOrder Int            @map("display_order")
+
+  // Relations
+  applications              ChemicalSiteApplication[]
+  serviceEntriesOldInjector VisitLogServiceEntry[]    @relation("PreviousInjector")
+  serviceEntriesNewInjector VisitLogServiceEntry[]    @relation("NewInjector")
+
+  @@map("injector_types")
+}
+
+// Tip types (Standard, Hydrominder, Dial)
+model TipType {
+  id           String      @id @default(uuid())
+  category     TipCategory
+  name         String
+  displayOrder Int         @map("display_order")
+
+  // Relations
+  applications          ChemicalSiteApplication[]
+  serviceEntriesOldTip  VisitLogServiceEntry[]    @relation("PreviousTip")
+  serviceEntriesNewTip  VisitLogServiceEntry[]    @relation("NewTip")
+
+  @@map("tip_types")
+}
+
+// Chemical applications (injector slots)
+model ChemicalSiteApplication {
+  id                    String   @id @default(uuid())
+  chemicalSiteConfigId  String   @map("chemical_site_config_id")
+  applicationNumber     Int      @map("application_number")
+  injectorTypeId        String   @map("injector_type_id")
+  tipTypeId             String   @map("tip_type_id")
+  applicationName       String?  @map("application_name")
+  isActive              Boolean  @default(true) @map("is_active")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  chemicalSiteConfig ChemicalSiteConfig       @relation(fields: [chemicalSiteConfigId], references: [id], onDelete: Cascade)
+  injectorType       InjectorType             @relation(fields: [injectorTypeId], references: [id])
+  tipType            TipType                  @relation(fields: [tipTypeId], references: [id])
+  packageChemicals   WashPackageChemical[]
+  serviceLogEntries  VisitLogServiceEntry[]
+
+  @@unique([chemicalSiteConfigId, applicationNumber])
+  @@index([chemicalSiteConfigId])
+  @@map("chemical_site_applications")
+}
+
+// Inch-to-gallon conversion tables
+model InchGallonConversion {
+  id            String        @id @default(uuid())
+  containerType ContainerType @map("container_type")
+  inches        Decimal       @db.Decimal(4, 1)
+  gallons       Decimal       @db.Decimal(4, 1)
+
+  @@unique([containerType, inches])
+  @@index([containerType])
+  @@map("inch_gallon_conversions")
+}
+
+// ===========================================
+// WASH PACKAGES
+// ===========================================
+
+// Organization package templates
+model WashPackageTemplate {
+  id             String   @id @default(uuid())
+  organizationId String   @map("organization_id")
+  name           String
+  isDefault      Boolean  @default(false) @map("is_default")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdBy      String?  @map("created_by")
+
+  // Relations
+  organization Organization               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  creator      User?                      @relation("PackageTemplateCreatedBy", fields: [createdBy], references: [id])
+  items        WashPackageTemplateItem[]
+
+  @@index([organizationId])
+  @@map("wash_package_templates")
+}
+
+// Template items (packages within a template)
+model WashPackageTemplateItem {
+  id               String   @id @default(uuid())
+  templateId       String   @map("template_id")
+  name             String
+  displayOrder     Int      @map("display_order")
+  singleWashPrice  Decimal? @map("single_wash_price") @db.Decimal(6, 2)
+  membershipPrice  Decimal? @map("membership_price") @db.Decimal(6, 2)
+  description      String?
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  // Relations
+  template  WashPackageTemplate            @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  chemicals WashPackageTemplateChemical[]
+  packages  WashPackage[]
+
+  @@index([templateId])
+  @@map("wash_package_template_items")
+}
+
+// Chemicals in template items
+model WashPackageTemplateChemical {
+  id                  String @id @default(uuid())
+  templateItemId      String @map("template_item_id")
+  chemicalOrgConfigId String @map("chemical_org_config_id")
+  applicationOrder    Int    @map("application_order")
+
+  // Relations
+  templateItem      WashPackageTemplateItem @relation(fields: [templateItemId], references: [id], onDelete: Cascade)
+  chemicalOrgConfig ChemicalOrgConfig       @relation(fields: [chemicalOrgConfigId], references: [id], onDelete: Cascade)
+
+  @@index([templateItemId])
+  @@map("wash_package_template_chemicals")
+}
+
+// Site wash packages (copied from template or created directly)
+model WashPackage {
+  id              String   @id @default(uuid())
+  siteId          String   @map("site_id")
+  templateItemId  String?  @map("template_item_id")
+  name            String
+  displayOrder    Int      @map("display_order")
+  singleWashPrice Decimal? @map("single_wash_price") @db.Decimal(6, 2)
+  membershipPrice Decimal? @map("membership_price") @db.Decimal(6, 2)
+  description     String?
+  isFromTemplate  Boolean  @default(false) @map("is_from_template")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  site         Site                  @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  templateItem WashPackageTemplateItem? @relation(fields: [templateItemId], references: [id])
+  chemicals    WashPackageChemical[]
+
+  @@index([siteId])
+  @@map("wash_packages")
+}
+
+// Chemicals in site packages (via applications)
+model WashPackageChemical {
+  id                        String @id @default(uuid())
+  washPackageId             String @map("wash_package_id")
+  chemicalSiteApplicationId String @map("chemical_site_application_id")
+  applicationOrder          Int    @map("application_order")
+
+  // Relations
+  washPackage           WashPackage             @relation(fields: [washPackageId], references: [id], onDelete: Cascade)
+  chemicalSiteApplication ChemicalSiteApplication @relation(fields: [chemicalSiteApplicationId], references: [id], onDelete: Cascade)
+
+  @@unique([washPackageId, chemicalSiteApplicationId])
+  @@index([washPackageId])
+  @@map("wash_package_chemicals")
+}
+
+// ===========================================
+// VISIT LOGGING
+// ===========================================
+
+// Visit logs (umbrella for chemical + service entries)
+model VisitLog {
+  id                   String    @id @default(uuid())
+  siteId               String    @map("site_id")
+  userId               String    @map("user_id")
+  visitDate            DateTime  @db.Date @map("visit_date")
+  visitTime            DateTime  @default(now()) @map("visit_time") @db.Timetz
+  publicNotes          String?   @map("public_notes")
+  privateNotes         String?   @map("private_notes")
+  serviceNotes         String?   @map("service_notes")
+  privateServiceNotes  String?   @map("private_service_notes")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  site            Site                    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user            User                    @relation(fields: [userId], references: [id])
+  chemicalEntries VisitLogChemicalEntry[]
+  serviceEntries  VisitLogServiceEntry[]
+  scheduledVisit  ScheduledVisit?
+
+  @@index([siteId, visitDate(sort: Desc)])
+  @@index([userId])
+  @@map("visit_logs")
+}
+
+// Chemical inventory entries (per visit, per chemical)
+model VisitLogChemicalEntry {
+  id                      String   @id @default(uuid())
+  visitLogId              String   @map("visit_log_id")
+  chemicalSiteConfigId    String   @map("chemical_site_config_id")
+  entryMethod             String   @map("entry_method")
+  levelGallons            Decimal? @map("level_gallons") @db.Decimal(6, 2)
+  levelInches             Decimal? @map("level_inches") @db.Decimal(6, 2)
+  backstockCount          Int      @default(0) @map("backstock_count")
+  backstockGallons        Decimal  @default(0) @map("backstock_gallons") @db.Decimal(8, 2)
+  deliveryReceived        Boolean  @default(false) @map("delivery_received")
+  deliveryCount           Int?     @map("delivery_count")
+  deliveryGallons         Decimal? @map("delivery_gallons") @db.Decimal(8, 2)
+  totalOnHandGallons      Decimal  @map("total_on_hand_gallons") @db.Decimal(8, 2)
+  calculatedUsageGallons  Decimal? @map("calculated_usage_gallons") @db.Decimal(8, 2)
+  notes                   String?
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  // Relations
+  visitLog           VisitLog           @relation(fields: [visitLogId], references: [id], onDelete: Cascade)
+  chemicalSiteConfig ChemicalSiteConfig @relation(fields: [chemicalSiteConfigId], references: [id])
+
+  @@index([visitLogId])
+  @@index([chemicalSiteConfigId, createdAt(sort: Desc)])
+  @@map("visit_log_chemical_entries")
+}
+
+// Service log entries (per visit, per application)
+model VisitLogServiceEntry {
+  id                    String   @id @default(uuid())
+  visitLogId            String   @map("visit_log_id")
+  chemicalSiteApplicationId String @map("chemical_site_application_id")
+  equipmentChanged      Boolean  @default(false) @map("equipment_changed")
+  previousInjectorTypeId String? @map("previous_injector_type_id")
+  previousTipTypeId     String?  @map("previous_tip_type_id")
+  newInjectorTypeId     String?  @map("new_injector_type_id")
+  newTipTypeId          String?  @map("new_tip_type_id")
+  notes                 String?
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  // Relations
+  visitLog                VisitLog                @relation(fields: [visitLogId], references: [id], onDelete: Cascade)
+  chemicalSiteApplication ChemicalSiteApplication @relation(fields: [chemicalSiteApplicationId], references: [id])
+  previousInjectorType    InjectorType?           @relation("PreviousInjector", fields: [previousInjectorTypeId], references: [id])
+  previousTipType         TipType?                @relation("PreviousTip", fields: [previousTipTypeId], references: [id])
+  newInjectorType         InjectorType?           @relation("NewInjector", fields: [newInjectorTypeId], references: [id])
+  newTipType              TipType?                @relation("NewTip", fields: [newTipTypeId], references: [id])
+
+  @@index([visitLogId])
+  @@index([chemicalSiteApplicationId])
+  @@map("visit_log_service_entries")
+}
+
+// ===========================================
+// SCHEDULING
+// ===========================================
+
+// Scheduled visits
+model ScheduledVisit {
+  id                   String                @id @default(uuid())
+  siteId               String                @map("site_id")
+  userId               String                @map("user_id")
+  scheduledDate        DateTime              @db.Date @map("scheduled_date")
+  notes                String?
+  status               ScheduledVisitStatus  @default(SCHEDULED)
+  completedVisitLogId  String?               @unique @map("completed_visit_log_id")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+
+  // Relations
+  site              Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id])
+  completedVisitLog VisitLog? @relation(fields: [completedVisitLogId], references: [id])
+
+  @@index([siteId, scheduledDate])
+  @@index([status, scheduledDate])
+  @@map("scheduled_visits")
+}
