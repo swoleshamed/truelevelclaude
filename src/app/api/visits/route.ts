@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma, PrismaTransactionClient } from '@/lib/prisma';
 import { visitLogSchema, completeVisitSchema, visitQuerySchema } from '@/lib/validations';
 import { z } from 'zod';
 
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
         where: { userId: session.user.id },
         select: { siteId: true },
       });
-      const accessibleSiteIds = siteAccess.map((sa) => sa.siteId);
+      const accessibleSiteIds = siteAccess.map((sa: { siteId: string }) => sa.siteId);
 
       if (validatedQuery.siteId && !accessibleSiteIds.includes(validatedQuery.siteId)) {
         return NextResponse.json(
@@ -262,7 +262,7 @@ async function createCompleteVisit(session: any, body: any) {
   }
 
   // Create everything in a transaction
-  const visit = await prisma.$transaction(async (tx) => {
+  const visit = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
     // Create visit log
     const newVisit = await tx.visitLog.create({
       data: {

@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
 
       for (const entry of currVisit.chemicalEntries) {
         const prevEntry = prevVisit.chemicalEntries.find(
-          (e) => e.chemicalSiteConfigId === entry.chemicalSiteConfigId
+          (e: typeof entry) => e.chemicalSiteConfigId === entry.chemicalSiteConfigId
         );
 
         if (prevEntry && entry.calculatedUsageGallons) {
@@ -241,7 +241,7 @@ export async function GET(request: NextRequest) {
 
     // Add package breakdown if packages exist
     if (packages.length > 0) {
-      response.packageSummary = packages.map((pkg) => ({
+      response.packageSummary = packages.map((pkg: typeof packages[number]) => ({
         packageId: pkg.id,
         packageName: pkg.name,
         price: Number(pkg.price),

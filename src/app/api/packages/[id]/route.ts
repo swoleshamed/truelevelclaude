@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma, PrismaTransactionClient } from '@/lib/prisma';
 import { updateWashPackageSchema } from '@/lib/validations';
 import { z } from 'zod';
 
@@ -221,7 +221,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     const validatedData = updateWashPackageSchema.parse(packageData);
 
     // Update package and chemicals in a transaction
-    const pkg = await prisma.$transaction(async (tx) => {
+    const pkg = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
       // Update the package
       await tx.washPackage.update({
         where: { id },

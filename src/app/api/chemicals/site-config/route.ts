@@ -61,10 +61,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check access based on role
-    if (
-      session.user.role === 'ORG_ADMIN' ||
-      session.user.role === 'ORG_USER'
-    ) {
+    if (session.user.role === 'ORG_ADMIN') {
       if (site.organizationId !== session.user.organizationId) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }

@@ -137,12 +137,13 @@ export function ScheduleList({
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="w-40"
-        >
-          <option value="all">All Statuses</option>
-          <option value="SCHEDULED">Scheduled</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
-        </Select>
+          options={[
+            { value: 'all', label: 'All Statuses' },
+            { value: 'SCHEDULED', label: 'Scheduled' },
+            { value: 'COMPLETED', label: 'Completed' },
+            { value: 'CANCELLED', label: 'Cancelled' },
+          ]}
+        />
 
         <span className="text-sm text-text-secondary">
           {filteredSchedules.length} visit{filteredSchedules.length !== 1 ? 's' : ''}

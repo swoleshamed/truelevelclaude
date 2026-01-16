@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
         where: { userId: session.user.id },
         select: { siteId: true },
       });
-      const accessibleSiteIds = siteAccess.map((sa) => sa.siteId);
+      const accessibleSiteIds = siteAccess.map((sa: { siteId: string }) => sa.siteId);
 
       if (validatedQuery.siteId && !accessibleSiteIds.includes(validatedQuery.siteId)) {
         return NextResponse.json(

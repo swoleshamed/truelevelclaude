@@ -232,24 +232,23 @@ export function SiteAnalyticsDashboard({
             value={selectedSiteId}
             onChange={(e) => setSelectedSiteId(e.target.value)}
             className="w-full sm:w-auto"
-          >
-            {sites.map((site) => (
-              <option key={site.id} value={site.id}>
-                {site.name}
-              </option>
-            ))}
-          </Select>
+            options={sites.map((site) => ({
+              value: site.id,
+              label: site.name,
+            }))}
+          />
         )}
 
         <Select
           value={period}
           onChange={(e) => setPeriod(e.target.value as '7' | '30' | '90')}
           className="w-full sm:w-auto"
-        >
-          <option value="7">Last 7 Days</option>
-          <option value="30">Last 30 Days</option>
-          <option value="90">Last 90 Days</option>
-        </Select>
+          options={[
+            { value: '7', label: 'Last 7 Days' },
+            { value: '30', label: 'Last 30 Days' },
+            { value: '90', label: 'Last 90 Days' },
+          ]}
+        />
       </div>
 
       {loading ? (

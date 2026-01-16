@@ -291,15 +291,14 @@ export function ChemicalEntryForm({
                 }))
               }
               disabled={isEdit}
-            >
-              <option value="">Select chemical...</option>
-              {chemicals.map((chem) => (
-                <option key={chem.id} value={chem.id}>
-                  {chem.chemicalOrgConfig.chemicalMaster.name} (
-                  {formatChemicalType(chem.chemicalOrgConfig.chemicalMaster.type)})
-                </option>
-              ))}
-            </Select>
+              options={[
+                { value: '', label: 'Select chemical...' },
+                ...chemicals.map((chem) => ({
+                  value: chem.id,
+                  label: `${chem.chemicalOrgConfig.chemicalMaster.name} (${formatChemicalType(chem.chemicalOrgConfig.chemicalMaster.type)})`,
+                })),
+              ]}
+            />
           )}
           {errors.chemicalSiteConfigId && (
             <p className="text-sm text-error mt-1">{errors.chemicalSiteConfigId}</p>
@@ -319,11 +318,12 @@ export function ChemicalEntryForm({
                 entryMethod: e.target.value as 'GALLONS' | 'INCHES' | 'ESTIMATED',
               }))
             }
-          >
-            <option value="GALLONS">Gallons</option>
-            <option value="INCHES">Inches</option>
-            <option value="ESTIMATED">Estimated</option>
-          </Select>
+            options={[
+              { value: 'GALLONS', label: 'Gallons' },
+              { value: 'INCHES', label: 'Inches' },
+              { value: 'ESTIMATED', label: 'Estimated' },
+            ]}
+          />
         </div>
 
         {/* Level Input */}

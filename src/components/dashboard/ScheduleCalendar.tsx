@@ -17,8 +17,21 @@ interface ScheduledVisit {
   site: {
     id: string;
     name: string;
+    organization?: {
+      id: string;
+      name: string;
+    };
   };
   notes?: string | null;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  completedVisitLog?: {
+    id: string;
+    visitDate: string;
+  } | null;
 }
 
 interface ScheduleCalendarProps {

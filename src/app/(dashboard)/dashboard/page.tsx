@@ -64,7 +64,7 @@ export default async function DashboardPage() {
   }
 
   // ORGANIZATION ROLES: Show sites overview
-  if (role === 'ORG_ADMIN' || role === 'ORG_USER') {
+  if (role === 'ORG_ADMIN') {
     // TODO Phase 5: Fetch organization data from API
     // const organization = await prisma.organization.findFirst({
     //   where: { users: { some: { id: userId } } },

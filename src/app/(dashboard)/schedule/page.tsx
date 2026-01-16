@@ -312,7 +312,7 @@ export default function SchedulePage() {
           { id: 'calendar', label: 'Calendar' },
           { id: 'list', label: 'List' },
         ]}
-        activeTab={activeTab}
+        value={activeTab}
         onChange={setActiveTab}
         className="mb-6"
       />

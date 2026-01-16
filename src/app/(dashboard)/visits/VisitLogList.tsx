@@ -202,14 +202,14 @@ export function VisitLogList({
             <Select
               value={selectedSiteId}
               onChange={(e) => setSelectedSiteId(e.target.value)}
-            >
-              <option value="">All Sites</option>
-              {sites.map((site) => (
-                <option key={site.id} value={site.id}>
-                  {site.name}
-                </option>
-              ))}
-            </Select>
+              options={[
+                { value: '', label: 'All Sites' },
+                ...sites.map((site) => ({
+                  value: site.id,
+                  label: site.name,
+                })),
+              ]}
+            />
           )}
 
           {/* Date range filters */}

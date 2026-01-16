@@ -113,7 +113,9 @@ import NextAuth, { type DefaultSession } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { prisma } from './prisma';
-import type { UserRole } from '@prisma/client';
+
+// Define UserRole type locally since Prisma may not export it
+type UserRole = 'DISTRIBUTOR_ADMIN' | 'DISTRIBUTOR_USER' | 'ORG_ADMIN' | 'SITE_MANAGER' | 'SITE_USER';
 
 /**
  * Extend NextAuth types to include custom fields
@@ -155,7 +157,7 @@ declare module 'next-auth' {
  * - Secure password verification
  */
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any,
   session: {
     strategy: 'jwt',
     maxAge: 7 * 24 * 60 * 60, // 7 days (PRD Section 4.4)

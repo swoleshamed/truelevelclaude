@@ -4,10 +4,35 @@
 // WHY: Centralized types for consistency across the app
 // ===========================================
 
-import { UserRole, ChemicalType, ContainerType, WashType } from '@prisma/client';
+// Define Prisma enums locally since they may not be exported by @prisma/client
+export type UserRole = 'DISTRIBUTOR_ADMIN' | 'DISTRIBUTOR_USER' | 'ORG_ADMIN' | 'SITE_MANAGER' | 'SITE_USER';
 
-// Re-export Prisma enums for convenience
-export { UserRole, ChemicalType, ContainerType, WashType };
+export type ChemicalType =
+  | 'PREP_SOAP'
+  | 'HIGH_PH_PRESOAK'
+  | 'LOW_PH_PRESOAK'
+  | 'POLISH'
+  | 'DRYING_AGENT'
+  | 'TIRE_SHINE'
+  | 'RAIN_SHIELD'
+  | 'SURFACE_SEALANT'
+  | 'BUG_REMOVER'
+  | 'WHEEL_CLEANER'
+  | 'UNDERBODY_RUST'
+  | 'DEODORIZER'
+  | 'OTHER';
+
+export type ContainerType =
+  | 'TOTE_275'
+  | 'TOTE_330'
+  | 'DRUM_55'
+  | 'DRUM_30'
+  | 'DRUM_15'
+  | 'PAIL_5'
+  | 'PAIL_2_5'
+  | 'CUSTOM';
+
+export type WashType = 'EXPRESS' | 'FLEX' | 'FULL_SERVE' | 'SELF_SERVE';
 
 // ===========================================
 // USER & AUTH TYPES

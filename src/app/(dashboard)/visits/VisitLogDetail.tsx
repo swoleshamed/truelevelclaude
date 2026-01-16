@@ -53,6 +53,10 @@ interface ServiceEntry {
       };
     };
   };
+  previousInjectorTypeId: string | null;
+  previousTipTypeId: string | null;
+  newInjectorTypeId: string | null;
+  newTipTypeId: string | null;
   previousInjectorType: { name: string; gpm: string } | null;
   previousTipType: { name: string } | null;
   newInjectorType: { name: string; gpm: string } | null;
@@ -355,7 +359,7 @@ export function VisitLogDetail({
           { id: 'chemicals', label: `Chemicals (${visit.chemicalEntries.length})` },
           { id: 'services', label: `Service (${visit.serviceEntries.length})` },
         ]}
-        activeTab={activeTab}
+        value={activeTab}
         onChange={setActiveTab}
       />
 
@@ -596,7 +600,10 @@ export function VisitLogDetail({
         onSuccess={() => fetchVisit()}
         visitId={visitId}
         siteId={visit.siteId}
-        entry={editingChemicalEntry || undefined}
+        entry={editingChemicalEntry ? {
+          ...editingChemicalEntry,
+          chemicalSiteConfigId: editingChemicalEntry.chemicalSiteConfig.id,
+        } : undefined}
       />
 
       {/* Service Entry Modal */}
@@ -609,7 +616,16 @@ export function VisitLogDetail({
         onSuccess={() => fetchVisit()}
         visitId={visitId}
         siteId={visit.siteId}
-        entry={editingServiceEntry || undefined}
+        entry={editingServiceEntry ? {
+          id: editingServiceEntry.id,
+          chemicalSiteApplicationId: editingServiceEntry.chemicalSiteApplication.id,
+          equipmentChanged: editingServiceEntry.equipmentChanged,
+          previousInjectorTypeId: editingServiceEntry.previousInjectorTypeId,
+          previousTipTypeId: editingServiceEntry.previousTipTypeId,
+          newInjectorTypeId: editingServiceEntry.newInjectorTypeId,
+          newTipTypeId: editingServiceEntry.newTipTypeId,
+          notes: editingServiceEntry.notes,
+        } : undefined}
       />
 
       {/* Delete Confirmation */}

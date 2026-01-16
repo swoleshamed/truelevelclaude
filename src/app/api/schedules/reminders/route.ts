@@ -248,7 +248,7 @@ async function buildSiteFilter(session: any): Promise<any | null> {
       where: { userId: session.user.id },
       select: { siteId: true },
     });
-    const siteIds = siteAccess.map((sa) => sa.siteId);
+    const siteIds = siteAccess.map((sa: { siteId: string }) => sa.siteId);
 
     return {
       id: { in: siteIds },

@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
           trend: usageChange >= 0 ? 'up' : 'down',
         },
       },
-      recentActivity: currentVisits.slice(0, 5).map((visit) => ({
+      recentActivity: currentVisits.slice(0, 5).map((visit: typeof currentVisits[number]) => ({
         id: visit.id,
         date: visit.visitDate,
         siteName: visit.site.name,
@@ -291,7 +291,7 @@ async function buildSiteFilter(
       where: { userId: session.user.id },
       select: { siteId: true },
     });
-    const siteIds = siteAccess.map((sa) => sa.siteId);
+    const siteIds = siteAccess.map((sa: { siteId: string }) => sa.siteId);
 
     return {
       siteId: { in: siteIds },
@@ -402,7 +402,7 @@ async function getLatestChemicalEntries(siteFilter: any): Promise<Array<{
     });
 
     const totalUsage = recentEntries.reduce(
-      (sum, e) => sum + Number(e.calculatedUsageGallons || 0),
+      (sum: number, e: typeof recentEntries[number]) => sum + Number(e.calculatedUsageGallons || 0),
       0
     );
     const avgDailyUsage = totalUsage / 30;

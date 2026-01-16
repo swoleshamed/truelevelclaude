@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma, PrismaTransactionClient } from '@/lib/prisma';
 import { z } from 'zod';
 
 interface RouteContext {
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     // Create item with chemicals in a transaction
-    const item = await prisma.$transaction(async (tx) => {
+    const item = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
       // Create the item
       const newItem = await tx.washPackageTemplateItem.create({
         data: {
@@ -315,7 +315,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     }
 
     // Update item with chemicals in a transaction
-    const item = await prisma.$transaction(async (tx) => {
+    const item = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
       // Update the item
       await tx.washPackageTemplateItem.update({
         where: { id: validatedData.id },

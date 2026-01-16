@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma, PrismaTransactionClient } from '@/lib/prisma';
 import { washPackageSchema, applyTemplateSchema } from '@/lib/validations';
 import { z } from 'zod';
 
@@ -346,7 +346,7 @@ async function applyTemplate(session: any, body: any) {
   }
 
   // Create packages from template in a transaction
-  const packages = await prisma.$transaction(async (tx) => {
+  const packages = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
     const createdPackages = [];
 
     for (const item of template.items) {

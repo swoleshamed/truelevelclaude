@@ -78,7 +78,7 @@ export function useThrottle<T extends (...args: any[]) => any>(
  */
 export function useIntersectionObserver(
   options: IntersectionObserverInit = {}
-): [React.RefObject<HTMLElement>, boolean] {
+): [React.RefObject<HTMLElement | null>, boolean] {
   const ref = useRef<HTMLElement>(null);
   const [isIntersecting, setIsIntersecting] = useState(false);
 
@@ -105,7 +105,7 @@ export function useIntersectionObserver(
  *
  * @param threshold - How close to viewport before loading (0-1)
  */
-export function useLazyLoad(threshold: number = 0.1): [React.RefObject<HTMLElement>, boolean] {
+export function useLazyLoad(threshold: number = 0.1): [React.RefObject<HTMLElement | null>, boolean] {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [ref, isIntersecting] = useIntersectionObserver({
     threshold,

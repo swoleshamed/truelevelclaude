@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma, PrismaTransactionClient } from '@/lib/prisma';
 import { serviceEntrySchema, bulkServiceEntriesSchema, updateServiceEntrySchema } from '@/lib/validations';
 import { z } from 'zod';
 
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
         return NextResponse.json([], { status: 201 });
       }
 
-      const entries = await prisma.$transaction(async (tx) => {
+      const entries = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
         const created = [];
         for (const entry of validatedData.entries) {
           const newEntry = await tx.visitLogServiceEntry.create({
@@ -228,7 +228,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     // Single entry
     const validatedData = serviceEntrySchema.parse(body);
 
-    const entry = await prisma.$transaction(async (tx) => {
+    const entry = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
       const newEntry = await tx.visitLogServiceEntry.create({
         data: {
           visitLogId: visitId,

@@ -62,7 +62,6 @@ export async function GET(request: NextRequest) {
      */
     if (
       session.user.role === 'ORG_ADMIN' ||
-      session.user.role === 'ORG_USER' ||
       session.user.role === 'SITE_MANAGER' ||
       session.user.role === 'SITE_USER'
     ) {
