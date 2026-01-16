@@ -83,29 +83,29 @@ export async function GET(request: NextRequest) {
 }
 
 /**
+ * ChemicalType enum values matching Prisma schema
+ */
+const chemicalTypeValues = [
+  'PREP_SOAP',
+  'HIGH_PH_PRESOAK',
+  'LOW_PH_PRESOAK',
+  'WHEEL_TIRE_CLEANER',
+  'FOAM_DETERGENT',
+  'FRAGRANCE',
+  'TRI_COLOR',
+  'PROTECTANT',
+  'DRY_AGENT',
+  'TIRE_SHINE',
+  'OTHER',
+] as const;
+
+/**
  * Validation schema for creating/updating chemical master
  * PRD REFERENCE: Technical Spec - ChemicalMaster schema
  */
 const chemicalMasterSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  type: z.enum([
-    'PREP_SOAP',
-    'HIGH_PH_PRESOAK',
-    'LOW_PH_PRESOAK',
-    'TIRE_CLEANER',
-    'WHEEL_CLEANER',
-    'TRIPLE_FOAM',
-    'TRIPLE_FOAM_POLISH',
-    'CLEARCOAT_PROTECTANT',
-    'CERAMIC_SEALANT',
-    'TIRE_SHINE',
-    'SPOT_FREE_RINSE',
-    'DRYER_AGENT',
-    'BUG_PREP',
-    'WHEEL_MAGIC',
-    'RAIN_X',
-    'OTHER',
-  ]),
+  type: z.enum(chemicalTypeValues),
   manufacturer: z.string().optional(),
   description: z.string().optional(),
   distributorId: z.string(),

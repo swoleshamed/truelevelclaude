@@ -180,18 +180,13 @@ export function ChemicalForm({
             <option value="PREP_SOAP">Prep Soap</option>
             <option value="HIGH_PH_PRESOAK">High pH Presoak</option>
             <option value="LOW_PH_PRESOAK">Low pH Presoak</option>
-            <option value="TIRE_CLEANER">Tire Cleaner</option>
-            <option value="WHEEL_CLEANER">Wheel Cleaner</option>
-            <option value="TRIPLE_FOAM">Triple Foam</option>
-            <option value="TRIPLE_FOAM_POLISH">Triple Foam Polish</option>
-            <option value="CLEARCOAT_PROTECTANT">Clearcoat Protectant</option>
-            <option value="CERAMIC_SEALANT">Ceramic Sealant</option>
+            <option value="WHEEL_TIRE_CLEANER">Wheel & Tire Cleaner</option>
+            <option value="FOAM_DETERGENT">Foam Detergent</option>
+            <option value="FRAGRANCE">Fragrance</option>
+            <option value="TRI_COLOR">Tri-Color</option>
+            <option value="PROTECTANT">Protectant</option>
+            <option value="DRY_AGENT">Dry Agent</option>
             <option value="TIRE_SHINE">Tire Shine</option>
-            <option value="SPOT_FREE_RINSE">Spot Free Rinse</option>
-            <option value="DRYER_AGENT">Dryer Agent</option>
-            <option value="BUG_PREP">Bug Prep</option>
-            <option value="WHEEL_MAGIC">Wheel Magic</option>
-            <option value="RAIN_X">Rain-X</option>
             <option value="OTHER">Other</option>
           </Select>
           {errors.type && (
