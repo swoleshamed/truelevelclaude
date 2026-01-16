@@ -7,6 +7,12 @@
 
 import { PrismaClient } from '@prisma/client';
 
+// Type for Prisma transaction client (used in $transaction callbacks)
+export type PrismaTransactionClient = Omit<
+  PrismaClient,
+  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+>;
+
 // Prisma Client singleton pattern
 // WHY: In development, Next.js hot reload can create multiple Prisma clients
 // This pattern ensures we only have one client instance

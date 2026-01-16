@@ -71,7 +71,7 @@ export default async function ChemicalsPage() {
   }
 
   // ORGANIZATION ROLES: View org chemicals, configure for sites
-  if (role === 'ORG_ADMIN' || role === 'ORG_USER') {
+  if (role === 'ORG_ADMIN') {
     const organizationId = session.user.organizationId;
 
     if (!organizationId) {

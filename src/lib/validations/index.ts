@@ -5,3 +5,7 @@
 // ===========================================
 
 export * from './auth';
+export * from './packages';
+export * from './visits';
+export * from './analytics';
+export * from './schedules';

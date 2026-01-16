@@ -106,16 +106,16 @@ export function LocationSwitcher({
 
   // Get current location display name
   const getCurrentLocationName = (): string => {
-    if (currentLocation.level === 'all') {
+    if (currentLocation.type === 'ALL') {
       return 'All Locations';
     }
 
-    if (currentLocation.level === 'organization') {
+    if (currentLocation.type === 'ORG') {
       const org = organizations.find((o) => o.id === currentLocation.organizationId);
       return org?.name || 'Organization';
     }
 
-    if (currentLocation.level === 'site') {
+    if (currentLocation.type === 'SITE') {
       const org = organizations.find((o) =>
         o.sites.some((s) => s.id === currentLocation.siteId)
       );
@@ -142,25 +142,38 @@ export function LocationSwitcher({
 
   // Handle location selection
   const handleSelectAll = () => {
-    onLocationChange({ level: 'all' });
+    onLocationChange({ type: 'ALL' });
     setIsOpen(false);
     setSearchQuery('');
   };
 
   const handleSelectOrganization = (orgId: string) => {
-    onLocationChange({ level: 'organization', organizationId: orgId });
+    const org = organizations.find((o) => o.id === orgId);
+    onLocationChange({
+      type: 'ORG',
+      organizationId: orgId,
+      organizationName: org?.name || '',
+    });
     setIsOpen(false);
     setSearchQuery('');
   };
 
   const handleSelectSite = (siteId: string, orgId: string) => {
-    onLocationChange({ level: 'site', siteId, organizationId: orgId });
+    const org = organizations.find((o) => o.id === orgId);
+    const site = org?.sites.find((s) => s.id === siteId);
+    onLocationChange({
+      type: 'SITE',
+      siteId,
+      siteName: site?.name || '',
+      organizationId: orgId,
+      organizationName: org?.name || '',
+    });
     setIsOpen(false);
     setSearchQuery('');
   };
 
   const isCurrentSite = (siteId: string) =>
-    currentLocation.level === 'site' && currentLocation.siteId === siteId;
+    currentLocation.type === 'SITE' && currentLocation.siteId === siteId;
 
   return (
     <div ref={dropdownRef} className={cn('relative', className)}>
@@ -250,7 +263,7 @@ export function LocationSwitcher({
               onClick={handleSelectAll}
               className={cn(
                 'w-full px-4 py-2 text-left hover:bg-bg-tertiary transition-colors duration-150 flex items-center justify-between',
-                currentLocation.level === 'all' && 'bg-bg-tertiary'
+                currentLocation.type === 'ALL' && 'bg-bg-tertiary'
               )}
             >
               <span className="font-medium text-text-primary">
@@ -271,7 +284,7 @@ export function LocationSwitcher({
                   onClick={() => handleSelectOrganization(org.id)}
                   className={cn(
                     'w-full px-4 py-2 text-left hover:bg-bg-tertiary transition-colors duration-150 font-medium text-text-primary text-sm',
-                    currentLocation.level === 'organization' &&
+                    currentLocation.type === 'ORG' &&
                       currentLocation.organizationId === org.id &&
                       'bg-bg-tertiary'
                   )}

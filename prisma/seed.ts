@@ -5,7 +5,7 @@
 // Run with: npm run db:seed
 // ===========================================
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, InjectorSystem, TipCategory } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -19,33 +19,33 @@ async function main() {
 
   // Hydroflex Injectors
   const hydroflexInjectors = [
-    { system: 'HYDROFLEX', name: 'White', gpm: 0.25, displayOrder: 1 },
-    { system: 'HYDROFLEX', name: 'Yellow', gpm: 0.50, displayOrder: 2 },
-    { system: 'HYDROFLEX', name: 'Tan', gpm: 0.75, displayOrder: 3 },
-    { system: 'HYDROFLEX', name: 'Red', gpm: 1.00, displayOrder: 4 },
-    { system: 'HYDROFLEX', name: 'Orange', gpm: 1.50, displayOrder: 5 },
-    { system: 'HYDROFLEX', name: 'Gray', gpm: 2.00, displayOrder: 6 },
-    { system: 'HYDROFLEX', name: 'Blue', gpm: 2.25, displayOrder: 7 },
-    { system: 'HYDROFLEX', name: 'Light Blue', gpm: 3.00, displayOrder: 8 },
-    { system: 'HYDROFLEX', name: 'Light Green', gpm: 3.25, displayOrder: 9 },
-    { system: 'HYDROFLEX', name: 'Pink', gpm: 3.75, displayOrder: 10 },
-    { system: 'HYDROFLEX', name: 'Purple', gpm: 4.50, displayOrder: 11 },
-    { system: 'HYDROFLEX', name: 'Dark Green', gpm: 5.50, displayOrder: 12 },
-    { system: 'HYDROFLEX', name: 'Black (8.0)', gpm: 8.00, displayOrder: 13 },
-    { system: 'HYDROFLEX', name: 'Black (10.0)', gpm: 10.00, displayOrder: 14 },
-    { system: 'HYDROFLEX', name: 'Black (12.0)', gpm: 12.00, displayOrder: 15 },
-    { system: 'HYDROFLEX', name: 'Black (15.0)', gpm: 15.00, displayOrder: 16 },
+    { system: InjectorSystem.HYDROFLEX, name: 'White', gpm: 0.25, displayOrder: 1 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Yellow', gpm: 0.50, displayOrder: 2 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Tan', gpm: 0.75, displayOrder: 3 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Red', gpm: 1.00, displayOrder: 4 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Orange', gpm: 1.50, displayOrder: 5 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Gray', gpm: 2.00, displayOrder: 6 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Blue', gpm: 2.25, displayOrder: 7 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Light Blue', gpm: 3.00, displayOrder: 8 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Light Green', gpm: 3.25, displayOrder: 9 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Pink', gpm: 3.75, displayOrder: 10 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Purple', gpm: 4.50, displayOrder: 11 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Dark Green', gpm: 5.50, displayOrder: 12 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Black (8.0)', gpm: 8.00, displayOrder: 13 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Black (10.0)', gpm: 10.00, displayOrder: 14 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Black (12.0)', gpm: 12.00, displayOrder: 15 },
+    { system: InjectorSystem.HYDROFLEX, name: 'Black (15.0)', gpm: 15.00, displayOrder: 16 },
   ];
 
   // Hydrominder Injectors
   const hydrominderInjectors = [
-    { system: 'HYDROMINDER', name: '515', gpm: 1.50, displayOrder: 17 },
-    { system: 'HYDROMINDER', name: 'E Gap 5111', gpm: 3.50, displayOrder: 18 },
-    { system: 'HYDROMINDER', name: '511', gpm: 4.50, displayOrder: 19 },
-    { system: 'HYDROMINDER', name: '532', gpm: 6.00, displayOrder: 20 },
-    { system: 'HYDROMINDER', name: '530', gpm: 9.00, displayOrder: 21 },
-    { system: 'HYDROMINDER', name: '546/551', gpm: 18.00, displayOrder: 22 },
-    { system: 'HYDROMINDER', name: '560/565', gpm: 25.00, displayOrder: 23 },
+    { system: InjectorSystem.HYDROMINDER, name: '515', gpm: 1.50, displayOrder: 17 },
+    { system: InjectorSystem.HYDROMINDER, name: 'E Gap 5111', gpm: 3.50, displayOrder: 18 },
+    { system: InjectorSystem.HYDROMINDER, name: '511', gpm: 4.50, displayOrder: 19 },
+    { system: InjectorSystem.HYDROMINDER, name: '532', gpm: 6.00, displayOrder: 20 },
+    { system: InjectorSystem.HYDROMINDER, name: '530', gpm: 9.00, displayOrder: 21 },
+    { system: InjectorSystem.HYDROMINDER, name: '546/551', gpm: 18.00, displayOrder: 22 },
+    { system: InjectorSystem.HYDROMINDER, name: '560/565', gpm: 25.00, displayOrder: 23 },
   ];
 
   const allInjectors = [...hydroflexInjectors, ...hydrominderInjectors];
@@ -74,7 +74,7 @@ async function main() {
     'Pink', 'Light Blue', 'Brown', 'Red', 'White', 'Green', 'Blue',
     'Yellow', 'Black', 'Purple', 'Gray'
   ].map((name, index) => ({
-    category: 'STANDARD',
+    category: TipCategory.STANDARD,
     name,
     displayOrder: index + 1,
   }));
@@ -84,14 +84,14 @@ async function main() {
     'Beige', 'Dk. Blue', 'Yellow', 'Aqua', 'Precision',
     'Lt. Purple', 'Olive', 'Red Purple', 'Lt. Orange'
   ].map((name, index) => ({
-    category: 'HYDROMINDER',
+    category: TipCategory.HYDROMINDER,
     name,
     displayOrder: standardTips.length + index + 1,
   }));
 
   // Dial Tips (1-32)
   const dialTips = Array.from({ length: 32 }, (_, i) => ({
-    category: 'DIAL',
+    category: TipCategory.DIAL,
     name: `Dial ${i + 1}`,
     displayOrder: standardTips.length + hydrominderTips.length + i + 1,
   }));

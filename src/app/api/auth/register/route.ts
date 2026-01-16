@@ -5,10 +5,11 @@
 // ===========================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma, PrismaTransactionClient } from '@/lib/prisma';
 import { hashPassword } from '@/lib/auth';
 import { registrationSchema } from '@/lib/validations/auth';
-import { UserRole } from '@prisma/client';
+
+type UserRole = 'DISTRIBUTOR_ADMIN' | 'DISTRIBUTOR_USER' | 'ORG_ADMIN' | 'SITE_MANAGER' | 'SITE_USER';
 
 /**
  * POST /api/auth/register
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
       role = 'DISTRIBUTOR_ADMIN';
 
       // Transaction: Create distributor and user atomically
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
         // Create distributor company
         const distributor = await tx.distributor.create({
           data: {
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
       role = 'ORG_ADMIN';
 
       // Transaction: Create organization and user atomically
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
         // Create organization (no distributor initially - self-signup)
         const organization = await tx.organization.create({
           data: {
