@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         isActive: true,
       },
       include: {
-        items: {
+        chemicals: {
           include: {
             chemicalSiteApplication: {
               include: {
