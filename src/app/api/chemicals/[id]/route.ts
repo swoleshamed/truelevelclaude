@@ -49,7 +49,7 @@ const chemicalMasterUpdateSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -57,8 +57,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const chemical = await prisma.chemicalMaster.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         orgConfigs: {
           include: {
@@ -116,7 +117,7 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -135,9 +136,11 @@ export async function PUT(
       );
     }
 
+    const { id } = await params;
+
     // Verify chemical exists and belongs to user's distributor
     const existingChemical = await prisma.chemicalMaster.findUnique({
-      where: { id: params.id },
+      where: { id: id },
     });
 
     if (!existingChemical) {
@@ -160,7 +163,7 @@ export async function PUT(
 
     // Update chemical
     const updatedChemical = await prisma.chemicalMaster.update({
-      where: { id: params.id },
+      where: { id: id },
       data: validatedData,
     });
 
@@ -197,7 +200,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -216,9 +219,11 @@ export async function DELETE(
       );
     }
 
+    const { id } = await params;
+
     // Verify chemical exists and belongs to user's distributor
     const existingChemical = await prisma.chemicalMaster.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingChemical) {
@@ -242,7 +247,7 @@ export async function DELETE(
      */
     try {
       await prisma.chemicalMaster.delete({
-        where: { id: params.id },
+        where: { id: id },
       });
 
       return NextResponse.json({ message: 'Chemical deleted successfully' });

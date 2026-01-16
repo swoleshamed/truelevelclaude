@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Dialog } from '@/components/ui';
+import { Modal } from '@/components/ui';
 
 interface InjectorType {
   id: string;
@@ -166,7 +166,7 @@ export function ChemicalSiteApplicationForm({
     : tipTypes;
 
   return (
-    <Dialog
+    <Modal
       isOpen={isOpen}
       onClose={handleClose}
       title="Assign Chemical to Tank"
@@ -317,6 +317,6 @@ export function ChemicalSiteApplicationForm({
           </button>
         </div>
       </form>
-    </Dialog>
+    </Modal>
   );
 }

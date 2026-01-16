@@ -244,25 +244,26 @@ export function DistributorChemicalCatalog({
           <Select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-          >
-            <option value="ALL">All Types</option>
-            <option value="PREP_SOAP">Prep Soap</option>
-            <option value="HIGH_PH_PRESOAK">High pH Presoak</option>
-            <option value="LOW_PH_PRESOAK">Low pH Presoak</option>
-            <option value="TIRE_CLEANER">Tire Cleaner</option>
-            <option value="WHEEL_CLEANER">Wheel Cleaner</option>
-            <option value="TRIPLE_FOAM">Triple Foam</option>
-            <option value="TRIPLE_FOAM_POLISH">Triple Foam Polish</option>
-            <option value="CLEARCOAT_PROTECTANT">Clearcoat Protectant</option>
-            <option value="CERAMIC_SEALANT">Ceramic Sealant</option>
-            <option value="TIRE_SHINE">Tire Shine</option>
-            <option value="SPOT_FREE_RINSE">Spot Free Rinse</option>
-            <option value="DRYER_AGENT">Dryer Agent</option>
-            <option value="BUG_PREP">Bug Prep</option>
-            <option value="WHEEL_MAGIC">Wheel Magic</option>
-            <option value="RAIN_X">Rain-X</option>
-            <option value="OTHER">Other</option>
-          </Select>
+            options={[
+              { value: 'ALL', label: 'All Types' },
+              { value: 'PREP_SOAP', label: 'Prep Soap' },
+              { value: 'HIGH_PH_PRESOAK', label: 'High pH Presoak' },
+              { value: 'LOW_PH_PRESOAK', label: 'Low pH Presoak' },
+              { value: 'TIRE_CLEANER', label: 'Tire Cleaner' },
+              { value: 'WHEEL_CLEANER', label: 'Wheel Cleaner' },
+              { value: 'TRIPLE_FOAM', label: 'Triple Foam' },
+              { value: 'TRIPLE_FOAM_POLISH', label: 'Triple Foam Polish' },
+              { value: 'CLEARCOAT_PROTECTANT', label: 'Clearcoat Protectant' },
+              { value: 'CERAMIC_SEALANT', label: 'Ceramic Sealant' },
+              { value: 'TIRE_SHINE', label: 'Tire Shine' },
+              { value: 'SPOT_FREE_RINSE', label: 'Spot Free Rinse' },
+              { value: 'DRYER_AGENT', label: 'Dryer Agent' },
+              { value: 'BUG_PREP', label: 'Bug Prep' },
+              { value: 'WHEEL_MAGIC', label: 'Wheel Magic' },
+              { value: 'RAIN_X', label: 'Rain-X' },
+              { value: 'OTHER', label: 'Other' },
+            ]}
+          />
         </div>
       </div>
 
@@ -438,8 +439,8 @@ export function DistributorChemicalCatalog({
           onConfirm={handleDelete}
           title="Delete Chemical"
           message={`Are you sure you want to delete "${selectedChemical.name}"? This action cannot be undone and will remove all related configurations.`}
-          confirmLabel="Delete"
-          variant="destructive"
+          confirmText="Delete"
+          confirmVariant="destructive"
         />
       )}
     </PageContainer>
