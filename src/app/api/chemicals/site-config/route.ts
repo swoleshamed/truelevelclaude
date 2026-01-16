@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       session.user.role === 'SITE_USER'
     ) {
       // Verify site assignment
-      const siteUser = await prisma.siteUser.findFirst({
+      const siteUser = await prisma.userSiteAccess.findFirst({
         where: {
           userId: session.user.id,
           siteId: siteId,
@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
     } else if (session.user.role === 'SITE_MANAGER') {
-      const siteUser = await prisma.siteUser.findFirst({
+      const siteUser = await prisma.userSiteAccess.findFirst({
         where: {
           userId: session.user.id,
           siteId: validatedData.siteId,

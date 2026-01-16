@@ -139,14 +139,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user has access to this site
-    const siteUser = await prisma.siteUser.findFirst({
+    const userSiteAccess = await prisma.userSiteAccess.findFirst({
       where: {
         userId: session.user.id,
         siteId: siteConfig.siteId,
       },
     });
 
-    if (!siteUser) {
+    if (!userSiteAccess) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
