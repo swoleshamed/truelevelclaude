@@ -1,7 +1,7 @@
 # TrueLevel - Chemical Inventory Management
 
 **Version:** 0.1.0 (V0 Development)
-**Status:** Phase 4 Complete - Dashboard Implementation ✅
+**Status:** Phase 5 In Progress - Chemical Management 🚧
 **Domain:** truelevel.app
 
 ---
@@ -244,9 +244,47 @@ truelevelclaude/
 - [x] VisitReminderList for compact view
 - [x] Quick navigation to site details
 
+### 🚧 Phase 5: Chemical Management (IN PROGRESS)
+
+**5.1 Chemical Master Catalog API**
+- [x] GET/POST /api/chemicals (list/create)
+- [x] GET/PUT/DELETE /api/chemicals/[id] (individual operations)
+- [x] Role-based permissions (distributor admin only)
+- [x] Validation with Zod schemas
+
+**5.2 Organization Chemical Config API**
+- [x] GET/POST /api/chemicals/org-config
+- [x] Container type and pricing configuration
+- [x] Unique constraints and validation
+
+**5.3 Site Chemical Config API**
+- [x] GET/POST /api/chemicals/site-config
+- [x] Alert threshold configuration
+- [x] Tank application associations
+
+**5.4 Distributor Chemical Catalog UI**
+- [x] Chemical list with search and filters
+- [x] Group by chemical type
+- [x] View/edit/delete interfaces
+- [x] FAB integration for quick add
+- [ ] Chemical creation form
+- [ ] Chemical edit form
+
+**5.5 Organization Chemical Catalog UI**
+- [x] View available chemicals from distributor
+- [x] Display pricing and container types
+- [x] API integration with ChemicalOrgConfig
+- [ ] Configure chemicals for sites
+
+**5.6 Site Chemical Catalog UI**
+- [x] View configured chemicals
+- [x] Display alert thresholds
+- [x] Show tank applications
+- [ ] Manage injector/tip assignments
+- [ ] Chemical application forms
+
 ### 📋 Upcoming Phases
 
-- **Phase 5:** Chemical Management
 - **Phase 6:** Wash Packages
 - **Phase 7:** Visit Logging
 - **Phase 8:** Analytics
@@ -397,5 +435,5 @@ For questions or issues, contact the development team.
 
 ---
 
-**Last Updated:** January 15, 2026
-**Phase Status:** 4/10 Complete ✅✅✅✅
+**Last Updated:** January 16, 2026
+**Phase Status:** 4/10 Complete ✅✅✅✅ | Phase 5 In Progress 🚧
