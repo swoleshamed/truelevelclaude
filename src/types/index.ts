@@ -11,26 +11,26 @@ export type ChemicalType =
   | 'PREP_SOAP'
   | 'HIGH_PH_PRESOAK'
   | 'LOW_PH_PRESOAK'
-  | 'POLISH'
-  | 'DRYING_AGENT'
+  | 'WHEEL_TIRE_CLEANER'
+  | 'FOAM_DETERGENT'
+  | 'FRAGRANCE'
+  | 'TRI_COLOR'
+  | 'PROTECTANT'
+  | 'DRY_AGENT'
   | 'TIRE_SHINE'
-  | 'RAIN_SHIELD'
-  | 'SURFACE_SEALANT'
-  | 'BUG_REMOVER'
-  | 'WHEEL_CLEANER'
-  | 'UNDERBODY_RUST'
-  | 'DEODORIZER'
   | 'OTHER';
 
 export type ContainerType =
-  | 'TOTE_275'
-  | 'TOTE_330'
-  | 'DRUM_55'
-  | 'DRUM_30'
-  | 'DRUM_15'
-  | 'PAIL_5'
-  | 'PAIL_2_5'
-  | 'CUSTOM';
+  | 'HOLDING_TANK_10GAL'
+  | 'HOLDING_TANK_15GAL'
+  | 'HOLDING_TANK_20GAL'
+  | 'HOLDING_TANK_CUSTOM'
+  | 'JUG_1GAL'
+  | 'JUG_2_5GAL'
+  | 'PAIL_5GAL'
+  | 'DRUM_15GAL'
+  | 'DRUM_30GAL'
+  | 'DRUM_55GAL';
 
 export type WashType = 'EXPRESS' | 'FLEX' | 'FULL_SERVE' | 'SELF_SERVE';
 
