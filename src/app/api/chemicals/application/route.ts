@@ -14,9 +14,10 @@ import { z } from 'zod';
  */
 const chemicalApplicationSchema = z.object({
   chemicalSiteConfigId: z.string(),
-  tankId: z.string().min(1, 'Tank ID is required'),
+  applicationNumber: z.number().int().min(1, 'Application number is required'),
   injectorTypeId: z.string(),
   tipTypeId: z.string(),
+  applicationName: z.string().optional(),
 });
 
 /**
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
         injectorType: true,
         tipType: true,
       },
-      orderBy: { tankId: 'asc' },
+      orderBy: { applicationNumber: 'asc' },
     });
 
     return NextResponse.json(applications);
@@ -138,14 +139,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user has access to this site
-    const siteUser = await prisma.siteUser.findFirst({
+    const userSiteAccess = await prisma.userSiteAccess.findFirst({
       where: {
         userId: session.user.id,
         siteId: siteConfig.siteId,
       },
     });
 
-    if (!siteUser) {
+    if (!userSiteAccess) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

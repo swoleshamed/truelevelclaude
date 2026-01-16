@@ -10,20 +10,33 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
 /**
+ * ContainerType enum values matching Prisma schema
+ */
+const containerTypeValues = [
+  'HOLDING_TANK_10GAL',
+  'HOLDING_TANK_15GAL',
+  'HOLDING_TANK_20GAL',
+  'HOLDING_TANK_CUSTOM',
+  'JUG_1GAL',
+  'JUG_2_5GAL',
+  'PAIL_5GAL',
+  'DRUM_15GAL',
+  'DRUM_30GAL',
+  'DRUM_55GAL',
+] as const;
+
+/**
  * Validation schema for chemical org config
  * PRD REFERENCE: Technical Spec - ChemicalOrgConfig schema
  */
 const chemicalOrgConfigSchema = z.object({
   chemicalMasterId: z.string(),
   organizationId: z.string(),
-  containerType: z.enum([
-    'DRUM_5_GAL',
-    'DRUM_15_GAL',
-    'DRUM_30_GAL',
-    'DRUM_55_GAL',
-    'BULK_TANK',
-  ]),
-  containerCost: z.number().min(0, 'Cost must be positive'),
+  primaryContainer: z.enum(containerTypeValues),
+  primaryContainerSizeGallons: z.number().min(0).optional(),
+  backstockContainer: z.enum(containerTypeValues),
+  costPerContainer: z.number().min(0, 'Cost must be positive'),
+  costPerGallon: z.number().min(0, 'Cost must be positive'),
 });
 
 /**
