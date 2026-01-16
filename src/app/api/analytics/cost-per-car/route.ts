@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
         isActive: true,
       },
       include: {
-        items: {
+        chemicals: {
           include: {
             chemicalSiteApplication: {
               include: {
@@ -244,8 +244,8 @@ export async function GET(request: NextRequest) {
       response.packageSummary = packages.map((pkg: typeof packages[number]) => ({
         packageId: pkg.id,
         packageName: pkg.name,
-        price: Number(pkg.price),
-        chemicalCount: pkg.items.length,
+        price: Number(pkg.singleWashPrice || 0),
+        chemicalCount: pkg.chemicals.length,
       }));
     }
 
