@@ -9,8 +9,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { PageContainer, PageHeader } from '@/components/layout';
-import { Button, Card, Modal, Input, Select, StatusBadge } from '@/components/ui';
+import { Button, Card, Modal, Input, Select, StatusBadge, ConfirmModal } from '@/components/ui';
 import { useFABAction } from '@/components/layout/FAB';
+import { ChemicalForm } from '@/components/forms/ChemicalForm';
 
 interface ChemicalMaster {
   id: string;
@@ -57,6 +58,8 @@ export function DistributorChemicalCatalog({
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedChemical, setSelectedChemical] = useState<ChemicalMaster | null>(null);
 
   /**
@@ -157,6 +160,49 @@ export function DistributorChemicalCatalog({
       OTHER: 'bg-gray-100 text-gray-800',
     };
     return colors[type] || 'bg-gray-100 text-gray-800';
+  };
+
+  /**
+   * Handle chemical deletion
+   * WHY: Allow admins to remove discontinued chemicals
+   */
+  const handleDelete = async () => {
+    if (!selectedChemical) return;
+
+    try {
+      const response = await fetch(`/api/chemicals/${selectedChemical.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete chemical');
+      }
+
+      // Success! Refresh list and close modals
+      await fetchChemicals();
+      setShowDeleteConfirm(false);
+      setSelectedChemical(null);
+    } catch (error: any) {
+      console.error('Error deleting chemical:', error);
+      alert(error.message || 'Failed to delete chemical. Please try again.');
+    }
+  };
+
+  /**
+   * Handle edit button click
+   * WHY: Open edit modal with selected chemical
+   */
+  const handleEditClick = () => {
+    setShowEditModal(true);
+  };
+
+  /**
+   * Handle delete button click
+   * WHY: Show confirmation before deleting
+   */
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
   };
 
   if (loading) {
@@ -307,23 +353,35 @@ export function DistributorChemicalCatalog({
         </div>
       )}
 
-      {/* Create/Edit Modal - TODO: Implement ChemicalFormModal */}
-      {showCreateModal && (
-        <Modal
-          isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          title="Add Chemical"
-        >
-          <div className="p-6 text-center text-text-secondary">
-            Chemical creation form will be implemented next.
-          </div>
-        </Modal>
+      {/* Create Chemical Modal */}
+      <ChemicalForm
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={fetchChemicals}
+        distributorId={distributorId}
+      />
+
+      {/* Edit Chemical Modal */}
+      {selectedChemical && (
+        <ChemicalForm
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedChemical(null);
+          }}
+          onSuccess={() => {
+            fetchChemicals();
+            setSelectedChemical(null);
+          }}
+          distributorId={distributorId}
+          chemical={selectedChemical}
+        />
       )}
 
-      {/* Detail Modal - TODO: Implement ChemicalDetailModal */}
-      {selectedChemical && (
+      {/* Chemical Detail Modal */}
+      {selectedChemical && !showEditModal && (
         <Modal
-          isOpen={!!selectedChemical}
+          isOpen={!!selectedChemical && !showEditModal}
           onClose={() => setSelectedChemical(null)}
           title={selectedChemical.name}
         >
@@ -351,10 +409,18 @@ export function DistributorChemicalCatalog({
             <div className="flex gap-2 pt-4">
               {canEdit && (
                 <>
-                  <Button variant="secondary" className="flex-1">
+                  <Button
+                    variant="secondary"
+                    className="flex-1"
+                    onClick={handleEditClick}
+                  >
                     Edit
                   </Button>
-                  <Button variant="destructive" className="flex-1">
+                  <Button
+                    variant="destructive"
+                    className="flex-1"
+                    onClick={handleDeleteClick}
+                  >
                     Delete
                   </Button>
                 </>
@@ -362,6 +428,19 @@ export function DistributorChemicalCatalog({
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {selectedChemical && (
+        <ConfirmModal
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={handleDelete}
+          title="Delete Chemical"
+          message={`Are you sure you want to delete "${selectedChemical.name}"? This action cannot be undone and will remove all related configurations.`}
+          confirmLabel="Delete"
+          variant="destructive"
+        />
       )}
     </PageContainer>
   );
