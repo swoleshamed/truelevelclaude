@@ -9,7 +9,9 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Header } from '@/components/layout';
 import { LocationProvider } from '@/contexts/LocationContext';
+import { DevToolProvider } from '@/contexts/DevToolContext';
 import { FABProvider } from '@/components/layout/FAB';
+import { DevToolPanel } from '@/components/dev';
 import { DashboardNav } from './DashboardNav';
 import { DistributorTabMenu } from './DistributorTabMenu';
 
@@ -56,35 +58,35 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
-  // Check if user is a distributor for tab menu
-  const isDistributor =
-    session.user.role === 'DISTRIBUTOR_ADMIN' ||
-    session.user.role === 'DISTRIBUTOR_USER';
-
   return (
-    <LocationProvider>
-      <FABProvider>
-        <div className="min-h-screen bg-bg-primary">
-          {/* Global header */}
-          <Header
-            user={{
-              firstName: session.user.firstName,
-              lastName: session.user.lastName,
-              email: session.user.email || '',
-              role: session.user.role,
-            }}
-          />
+    <DevToolProvider>
+      <LocationProvider>
+        <FABProvider>
+          <div className="min-h-screen bg-bg-primary">
+            {/* Global header */}
+            <Header
+              user={{
+                firstName: session.user.firstName,
+                lastName: session.user.lastName,
+                email: session.user.email || '',
+                role: session.user.role,
+              }}
+            />
 
-          {/* Tab menu for tablet/desktop - shown for distributor users */}
-          {isDistributor && <DistributorTabMenu />}
+            {/* Tab menu for tablet/desktop - handles role-based visibility internally */}
+            <DistributorTabMenu actualRole={session.user.role} />
 
-          {/* Main content with padding for bottom nav */}
-          <main className="pb-16 lg:pb-8">{children}</main>
+            {/* Main content with padding for bottom nav */}
+            <main className="pb-16 lg:pb-8">{children}</main>
 
-          {/* Bottom navigation for mobile */}
-          <DashboardNav userRole={session.user.role} />
-        </div>
-      </FABProvider>
-    </LocationProvider>
+            {/* Bottom navigation for mobile */}
+            <DashboardNav userRole={session.user.role} />
+
+            {/* Dev tool panel (only visible in development) */}
+            <DevToolPanel />
+          </div>
+        </FABProvider>
+      </LocationProvider>
+    </DevToolProvider>
   );
 }
