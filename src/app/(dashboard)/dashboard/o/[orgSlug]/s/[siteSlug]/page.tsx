@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { auth } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { SiteDashboard } from '../../../../SiteDashboard';
 
 interface SiteDashboardPageProps {
