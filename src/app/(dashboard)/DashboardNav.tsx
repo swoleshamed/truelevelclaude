@@ -8,10 +8,8 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import { BottomNav } from '@/components/layout';
-import { useLocation, useCurrentPage } from '@/contexts/LocationContext';
-import { buildDashboardUrl } from '@/types';
+import { usePathname, useRouter } from 'next/navigation';
+import { BottomNav, useFAB } from '@/components/layout';
 
 interface DashboardNavProps {
   userRole: string;
@@ -26,13 +24,12 @@ interface DashboardNavProps {
  * URL-AWARE: Navigation hrefs dynamically adjust based on current location context.
  *
  * NAVIGATION ITEMS BY ROLE:
- * - Distributors: Overview, Activity, Products, Analytics
+ * - Distributors: Overview, Activity, [Action], Products, Analytics
  * - Others: Dashboard, Chemicals, Visits, Calendar
  */
 export function DashboardNav({ userRole }: DashboardNavProps) {
   const router = useRouter();
-  const { location } = useLocation();
-  const currentPage = useCurrentPage();
+  const { action } = useFAB();
 
   const isDistributor =
     userRole === 'DISTRIBUTOR_ADMIN' || userRole === 'DISTRIBUTOR_USER';
@@ -221,5 +218,13 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
 
   const navItems = isDistributor ? distributorNavItems : defaultNavItems;
 
-  return <BottomNav items={navItems} />;
+  // For distributors, insert action after Activity (position 2)
+  // For others, no action button in the nav
+  return (
+    <BottomNav
+      items={navItems}
+      action={isDistributor ? action : null}
+      actionPosition={2}
+    />
+  );
 }

@@ -8,15 +8,14 @@
 'use client';
 
 import React from 'react';
-import { TabMenu, TabMenuIcons } from '@/components/layout';
-import { useLocation, useCurrentPage } from '@/contexts/LocationContext';
-import { buildDashboardUrl } from '@/types';
+import { TabMenu, TabMenuIcons, useFAB } from '@/components/layout';
 
 /**
  * DistributorTabMenu Component
  *
  * WHY: Provides the tab navigation configuration specific to distributor users.
  * Distributors have access to: Overview, Activity, Products, Analytics
+ * Also includes context-aware action button on the far right.
  *
  * URL-AWARE: Tab hrefs dynamically adjust based on current location context:
  * - ALL: /dashboard, /dashboard/activity, etc.
@@ -27,8 +26,7 @@ import { buildDashboardUrl } from '@/types';
  * HIDDEN: On mobile where BottomNav is used
  */
 export function DistributorTabMenu() {
-  const { location } = useLocation();
-  const currentPage = useCurrentPage();
+  const { action } = useFAB();
 
   const distributorTabs = [
     {
@@ -61,5 +59,5 @@ export function DistributorTabMenu() {
     },
   ];
 
-  return <TabMenu items={distributorTabs} />;
+  return <TabMenu items={distributorTabs} action={action} />;
 }
