@@ -9,6 +9,8 @@
 
 import React from 'react';
 import { TabMenu, TabMenuIcons, useFAB } from '@/components/layout';
+import { useLocation, useCurrentPage } from '@/contexts/LocationContext';
+import { buildDashboardUrl } from '@/types';
 
 /**
  * DistributorTabMenu Component
@@ -27,6 +29,8 @@ import { TabMenu, TabMenuIcons, useFAB } from '@/components/layout';
  */
 export function DistributorTabMenu() {
   const { action } = useFAB();
+  const { location } = useLocation();
+  const currentPage = useCurrentPage();
 
   const distributorTabs = [
     {

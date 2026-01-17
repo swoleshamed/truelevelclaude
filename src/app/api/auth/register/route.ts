@@ -124,9 +124,18 @@ export async function POST(request: NextRequest) {
       // Transaction: Create organization and user atomically
       const result = await prisma.$transaction(async (tx: PrismaTransactionClient) => {
         // Create organization (no distributor initially - self-signup)
+        // Generate slug from company name
+        const baseSlug = companyName
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+        // Add random suffix to ensure uniqueness
+        const slug = `${baseSlug}-${Date.now().toString(36)}`;
+
         const organization = await tx.organization.create({
           data: {
             name: companyName,
+            slug,
             contactEmail: email,
             contactPhone: phone || null,
             distributorId: null, // Self-signup orgs have no distributor initially
