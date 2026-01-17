@@ -106,6 +106,7 @@ model Distributor {
 model Organization {
   id            String       @id @default(uuid())
   name          String
+  slug          String       @unique
   distributorId String?      @map("distributor_id")
   contactEmail  String?      @map("contact_email")
   contactPhone  String?      @map("contact_phone")
@@ -130,6 +131,7 @@ model Site {
   id                 String   @id @default(uuid())
   organizationId     String   @map("organization_id")
   name               String
+  slug               String
   address            String?
   washType           WashType @map("wash_type")
   visitReminderDays  Int      @default(14) @map("visit_reminder_days")
@@ -145,6 +147,7 @@ model Site {
   visitLogs         VisitLog[]
   scheduledVisits   ScheduledVisit[]
 
+  @@unique([organizationId, slug])
   @@index([organizationId])
   @@map("sites")
 }

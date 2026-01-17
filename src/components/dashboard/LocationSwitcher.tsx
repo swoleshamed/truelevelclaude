@@ -8,25 +8,27 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import type { LocationContext } from '@/types';
 
 interface Organization {
   id: string;
   name: string;
+  slug: string;
   sites: Site[];
 }
 
 interface Site {
   id: string;
   name: string;
+  slug: string;
   organizationId: string;
 }
 
 interface LocationSwitcherProps {
   organizations: Organization[];
   currentLocation: LocationContext;
-  onLocationChange: (location: LocationContext) => void;
   canAddNew?: boolean;
   onAddNew?: () => void;
   className?: string;
@@ -37,6 +39,12 @@ interface LocationSwitcherProps {
  *
  * WHY: Core navigation pattern for TrueLevel. The selected location determines
  * which tabs are displayed (PRD Section 5 - Navigation Architecture).
+ *
+ * URL-BASED NAVIGATION:
+ * - Selecting a location navigates to the corresponding URL
+ * - ALL → /dashboard
+ * - ORG → /dashboard/o/[orgSlug]
+ * - SITE → /dashboard/o/[orgSlug]/s/[siteSlug]
  *
  * BUSINESS LOGIC:
  * - Level 1 (All Locations): Shows all client orgs and sites (distributor view)
@@ -60,26 +68,24 @@ interface LocationSwitcherProps {
  * <LocationSwitcher
  *   organizations={organizations}
  *   currentLocation={currentLocation}
- *   onLocationChange={handleLocationChange}
  *   canAddNew={user.role === 'DISTRIBUTOR_ADMIN'}
  *   onAddNew={() => setShowAddModal(true)}
  * />
  * ```
  *
  * @param organizations - Array of organizations with nested sites
- * @param currentLocation - Currently selected location
- * @param onLocationChange - Callback when location changes
+ * @param currentLocation - Currently selected location (derived from URL)
  * @param canAddNew - Show "+ Add New" option (permission check)
  * @param onAddNew - Callback for adding new org/site
  */
 export function LocationSwitcher({
   organizations,
   currentLocation,
-  onLocationChange,
   canAddNew = false,
   onAddNew,
   className,
 }: LocationSwitcherProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -111,16 +117,14 @@ export function LocationSwitcher({
     }
 
     if (currentLocation.type === 'ORG') {
-      const org = organizations.find((o) => o.id === currentLocation.organizationId);
-      return org?.name || 'Organization';
+      const org = organizations.find((o) => o.slug === currentLocation.organizationSlug);
+      return org?.name || currentLocation.organizationName;
     }
 
     if (currentLocation.type === 'SITE') {
-      const org = organizations.find((o) =>
-        o.sites.some((s) => s.id === currentLocation.siteId)
-      );
-      const site = org?.sites.find((s) => s.id === currentLocation.siteId);
-      return site?.name || 'Site';
+      const org = organizations.find((o) => o.slug === currentLocation.organizationSlug);
+      const site = org?.sites.find((s) => s.slug === currentLocation.siteSlug);
+      return site?.name || currentLocation.siteName;
     }
 
     return 'Select Location';
@@ -140,40 +144,30 @@ export function LocationSwitcher({
         org.sites.length > 0
     );
 
-  // Handle location selection
+  // Handle location selection - navigates to URL
   const handleSelectAll = () => {
-    onLocationChange({ type: 'ALL' });
+    router.push('/dashboard');
     setIsOpen(false);
     setSearchQuery('');
   };
 
-  const handleSelectOrganization = (orgId: string) => {
-    const org = organizations.find((o) => o.id === orgId);
-    onLocationChange({
-      type: 'ORG',
-      organizationId: orgId,
-      organizationName: org?.name || '',
-    });
+  const handleSelectOrganization = (orgSlug: string) => {
+    router.push(`/dashboard/o/${orgSlug}`);
     setIsOpen(false);
     setSearchQuery('');
   };
 
-  const handleSelectSite = (siteId: string, orgId: string) => {
-    const org = organizations.find((o) => o.id === orgId);
-    const site = org?.sites.find((s) => s.id === siteId);
-    onLocationChange({
-      type: 'SITE',
-      siteId,
-      siteName: site?.name || '',
-      organizationId: orgId,
-      organizationName: org?.name || '',
-    });
+  const handleSelectSite = (siteSlug: string, orgSlug: string) => {
+    router.push(`/dashboard/o/${orgSlug}/s/${siteSlug}`);
     setIsOpen(false);
     setSearchQuery('');
   };
 
-  const isCurrentSite = (siteId: string) =>
-    currentLocation.type === 'SITE' && currentLocation.siteId === siteId;
+  const isCurrentOrg = (orgSlug: string) =>
+    currentLocation.type === 'ORG' && currentLocation.organizationSlug === orgSlug;
+
+  const isCurrentSite = (siteSlug: string) =>
+    currentLocation.type === 'SITE' && currentLocation.siteSlug === siteSlug;
 
   return (
     <div ref={dropdownRef} className={cn('relative', className)}>
@@ -281,12 +275,10 @@ export function LocationSwitcher({
               <div key={org.id} className="mb-2">
                 {/* Organization name */}
                 <button
-                  onClick={() => handleSelectOrganization(org.id)}
+                  onClick={() => handleSelectOrganization(org.slug)}
                   className={cn(
                     'w-full px-4 py-2 text-left hover:bg-bg-tertiary transition-colors duration-150 font-medium text-text-primary text-sm',
-                    currentLocation.type === 'ORG' &&
-                      currentLocation.organizationId === org.id &&
-                      'bg-bg-tertiary'
+                    isCurrentOrg(org.slug) && 'bg-bg-tertiary'
                   )}
                 >
                   {org.name.toUpperCase()}
@@ -296,13 +288,13 @@ export function LocationSwitcher({
                 {org.sites.map((site) => (
                   <button
                     key={site.id}
-                    onClick={() => handleSelectSite(site.id, org.id)}
+                    onClick={() => handleSelectSite(site.slug, org.slug)}
                     className={cn(
                       'w-full pl-8 pr-4 py-2 text-left hover:bg-bg-tertiary transition-colors duration-150 text-text-primary text-sm flex items-center',
-                      isCurrentSite(site.id) && 'bg-bg-tertiary'
+                      isCurrentSite(site.slug) && 'bg-bg-tertiary'
                     )}
                   >
-                    {isCurrentSite(site.id) && (
+                    {isCurrentSite(site.slug) && (
                       <svg
                         className="w-4 h-4 mr-2 text-primary"
                         fill="currentColor"

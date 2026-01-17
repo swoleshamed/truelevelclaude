@@ -7,12 +7,12 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 import type { LocationContext as LocationContextType } from '@/types';
 
 interface LocationContextValue {
   location: LocationContextType;
-  setLocation: (location: LocationContextType) => void;
   isLoading: boolean;
 }
 
@@ -21,75 +21,90 @@ const LocationContext = createContext<LocationContextValue | undefined>(
 );
 
 /**
+ * Parse URL path to extract location context
+ *
+ * URL PATTERNS:
+ * - /dashboard → ALL
+ * - /dashboard/o/[orgSlug] → ORG
+ * - /dashboard/o/[orgSlug]/s/[siteSlug] → SITE
+ */
+function parsePathToLocation(pathname: string): LocationContextType {
+  // Match organization pattern: /dashboard/o/[orgSlug]...
+  const orgMatch = pathname.match(/^\/dashboard\/o\/([^/]+)/);
+
+  if (!orgMatch) {
+    return { type: 'ALL' };
+  }
+
+  const orgSlug = orgMatch[1];
+
+  // Match site pattern: /dashboard/o/[orgSlug]/s/[siteSlug]...
+  const siteMatch = pathname.match(/^\/dashboard\/o\/([^/]+)\/s\/([^/]+)/);
+
+  if (siteMatch) {
+    const siteSlug = siteMatch[2];
+
+    // TODO Phase 5: Fetch actual org/site data from API
+    // For now, use slugs as placeholders for names/ids
+    return {
+      type: 'SITE',
+      siteId: siteSlug, // Will be fetched from DB
+      siteName: siteSlug, // Will be fetched from DB
+      siteSlug,
+      organizationId: orgSlug, // Will be fetched from DB
+      organizationName: orgSlug, // Will be fetched from DB
+      organizationSlug: orgSlug,
+    };
+  }
+
+  // Organization level
+  return {
+    type: 'ORG',
+    organizationId: orgSlug, // Will be fetched from DB
+    organizationName: orgSlug, // Will be fetched from DB
+    organizationSlug: orgSlug,
+  };
+}
+
+/**
  * Location Context Provider
  *
- * WHY: Maintains the current location context (All/Org/Site) across the dashboard.
- * This drives what data is displayed and which actions are available.
+ * WHY: Derives the current location context from the URL path.
+ * This enables bookmarkable, shareable URLs for dashboard views.
  *
  * BUSINESS LOGIC (PRD Section 5):
  * - Distributors: Can view ALL, specific ORG, or specific SITE
  * - Org Admins: Can view ORG (all sites) or specific SITE
  * - Site Users: Only see their assigned SITE
  *
- * PERSISTENCE:
- * - Location is stored in localStorage
- * - Restored on page reload
- * - Falls back to user's default context if invalid
+ * URL STRUCTURE:
+ * - /dashboard → ALL (view all orgs/sites)
+ * - /dashboard/o/[orgSlug] → ORG (view specific organization)
+ * - /dashboard/o/[orgSlug]/s/[siteSlug] → SITE (view specific site)
  *
- * EXAMPLE:
+ * EXAMPLE USAGE:
  * ```tsx
- * const { location, setLocation } = useLocation();
+ * const { location } = useLocation();
  *
- * // View all clients (distributor only)
- * setLocation({ type: 'ALL' });
- *
- * // View specific organization
- * setLocation({ type: 'ORG', organizationId: 'org-123', organizationName: 'ABC Car Wash' });
- *
- * // View specific site
- * setLocation({
- *   type: 'SITE',
- *   siteId: 'site-456',
- *   siteName: 'Main Street Location',
- *   organizationId: 'org-123',
- *   organizationName: 'ABC Car Wash'
- * });
+ * // Check current view level
+ * if (location.type === 'ALL') {
+ *   // Show all clients view
+ * } else if (location.type === 'ORG') {
+ *   // Show organization view
+ *   console.log(location.organizationSlug);
+ * } else if (location.type === 'SITE') {
+ *   // Show site view
+ *   console.log(location.siteSlug);
+ * }
  * ```
  */
 export function LocationProvider({ children }: { children: React.ReactNode }) {
-  const [location, setLocationState] = useState<LocationContextType>({
-    type: 'ALL',
-  });
-  const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
 
-  /**
-   * Load saved location from localStorage on mount
-   * WHY: Preserve user's last selected location across sessions
-   */
-  useEffect(() => {
-    const savedLocation = localStorage.getItem('truelevel-location');
-    if (savedLocation) {
-      try {
-        const parsed = JSON.parse(savedLocation);
-        setLocationState(parsed);
-      } catch (error) {
-        console.error('Failed to parse saved location:', error);
-      }
-    }
-    setIsLoading(false);
-  }, []);
-
-  /**
-   * Update location and persist to localStorage
-   * WHY: Save user preference for next session
-   */
-  const setLocation = (newLocation: LocationContextType) => {
-    setLocationState(newLocation);
-    localStorage.setItem('truelevel-location', JSON.stringify(newLocation));
-  };
+  const location = useMemo(() => parsePathToLocation(pathname), [pathname]);
 
   return (
-    <LocationContext.Provider value={{ location, setLocation, isLoading }}>
+    <LocationContext.Provider value={{ location, isLoading: false }}>
       {children}
     </LocationContext.Provider>
   );
@@ -97,7 +112,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
 
 /**
  * Hook to access location context
- * WHY: Provides type-safe access to location state
+ * WHY: Provides type-safe access to location state derived from URL
  */
 export function useLocation() {
   const context = useContext(LocationContext);
@@ -105,4 +120,20 @@ export function useLocation() {
     throw new Error('useLocation must be used within a LocationProvider');
   }
   return context;
+}
+
+/**
+ * Get the current tab page from pathname
+ * WHY: Helps determine which tab is active
+ *
+ * @returns The current tab page or undefined for overview
+ */
+export function useCurrentPage(): 'activity' | 'products' | 'analytics' | undefined {
+  const pathname = usePathname();
+
+  if (pathname.endsWith('/activity')) return 'activity';
+  if (pathname.endsWith('/products')) return 'products';
+  if (pathname.endsWith('/analytics')) return 'analytics';
+
+  return undefined;
 }
