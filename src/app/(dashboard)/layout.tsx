@@ -4,7 +4,7 @@
 // PRD REFERENCE: PRD Section 5 - Navigation Architecture
 // ===========================================
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Header } from '@/components/layout';
@@ -59,34 +59,36 @@ export default async function DashboardLayout({
   }
 
   return (
-    <DevToolProvider>
-      <LocationProvider>
-        <FABProvider>
-          <div className="min-h-screen bg-bg-primary">
-            {/* Global header */}
-            <Header
-              user={{
-                firstName: session.user.firstName,
-                lastName: session.user.lastName,
-                email: session.user.email || '',
-                role: session.user.role,
-              }}
-            />
+    <Suspense fallback={null}>
+      <DevToolProvider>
+        <LocationProvider>
+          <FABProvider>
+            <div className="min-h-screen bg-bg-primary">
+              {/* Global header */}
+              <Header
+                user={{
+                  firstName: session.user.firstName,
+                  lastName: session.user.lastName,
+                  email: session.user.email || '',
+                  role: session.user.role,
+                }}
+              />
 
-            {/* Tab menu for tablet/desktop - handles role-based visibility internally */}
-            <DistributorTabMenu actualRole={session.user.role} />
+              {/* Tab menu for tablet/desktop - handles role-based visibility internally */}
+              <DistributorTabMenu actualRole={session.user.role} />
 
-            {/* Main content with padding for bottom nav */}
-            <main className="pb-16 lg:pb-8">{children}</main>
+              {/* Main content with padding for bottom nav */}
+              <main className="pb-16 lg:pb-8">{children}</main>
 
-            {/* Bottom navigation for mobile */}
-            <DashboardNav userRole={session.user.role} />
+              {/* Bottom navigation for mobile */}
+              <DashboardNav userRole={session.user.role} />
 
-            {/* Dev tool panel (only visible in development) */}
-            <DevToolPanel />
-          </div>
-        </FABProvider>
-      </LocationProvider>
-    </DevToolProvider>
+              {/* Dev tool panel (only visible when enabled) */}
+              <DevToolPanel />
+            </div>
+          </FABProvider>
+        </LocationProvider>
+      </DevToolProvider>
+    </Suspense>
   );
 }

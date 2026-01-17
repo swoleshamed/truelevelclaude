@@ -7,6 +7,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { UserRole } from '@/types';
 
 interface UserOverride {
@@ -15,7 +16,7 @@ interface UserOverride {
 }
 
 interface DevToolContextValue {
-  /** Whether the dev tool is available (only in development) */
+  /** Whether the dev tool is available */
   isDevMode: boolean;
   /** The current user override, if any */
   userOverride: UserOverride | null;
@@ -33,6 +34,54 @@ const DevToolContext = createContext<DevToolContextValue | undefined>(undefined)
 
 const STORAGE_KEY = 'truelevel-dev-user-override';
 const PANEL_KEY = 'truelevel-dev-panel-expanded';
+const DEV_TOOLS_ENABLED_KEY = 'truelevel-dev-tools-enabled';
+
+/**
+ * Check if dev tools should be enabled
+ *
+ * Enabled when ANY of these are true:
+ * 1. NODE_ENV === 'development' (local dev)
+ * 2. NEXT_PUBLIC_ENABLE_DEV_TOOLS === 'true' (Vercel preview)
+ * 3. URL has ?devtools=truelevel (quick access on any deploy)
+ * 4. Previously enabled via URL param (persisted to localStorage)
+ */
+function useDevToolsEnabled(): boolean {
+  const searchParams = useSearchParams();
+  const [isEnabled, setIsEnabled] = useState(false);
+
+  useEffect(() => {
+    // Check development mode
+    const isDev = process.env.NODE_ENV === 'development';
+
+    // Check environment variable (set in Vercel for preview deployments)
+    const envEnabled = process.env.NEXT_PUBLIC_ENABLE_DEV_TOOLS === 'true';
+
+    // Check URL parameter
+    const urlParam = searchParams.get('devtools');
+    const urlEnabled = urlParam === 'truelevel';
+
+    // Check localStorage (persists URL param activation)
+    let storageEnabled = false;
+    try {
+      storageEnabled = localStorage.getItem(DEV_TOOLS_ENABLED_KEY) === 'true';
+    } catch {
+      // Ignore localStorage errors
+    }
+
+    // If URL param is present, persist to localStorage
+    if (urlEnabled) {
+      try {
+        localStorage.setItem(DEV_TOOLS_ENABLED_KEY, 'true');
+      } catch {
+        // Ignore localStorage errors
+      }
+    }
+
+    setIsEnabled(isDev || envEnabled || urlEnabled || storageEnabled);
+  }, [searchParams]);
+
+  return isEnabled;
+}
 
 /**
  * Dev Tool Provider
@@ -41,9 +90,14 @@ const PANEL_KEY = 'truelevel-dev-panel-expanded';
  * different UI states without logging in as different users.
  *
  * FEATURES:
- * - Only active in development mode
+ * - Active in development mode, or when enabled via env var/URL param
  * - Persists override to localStorage
  * - Provides hook for components to get effective role
+ *
+ * ACTIVATION METHODS:
+ * 1. Local development (NODE_ENV === 'development')
+ * 2. Set NEXT_PUBLIC_ENABLE_DEV_TOOLS=true in Vercel for preview deploys
+ * 3. Add ?devtools=truelevel to any URL (persists to localStorage)
  *
  * USAGE:
  * ```tsx
@@ -52,7 +106,7 @@ const PANEL_KEY = 'truelevel-dev-panel-expanded';
  * ```
  */
 export function DevToolProvider({ children }: { children: React.ReactNode }) {
-  const isDevMode = process.env.NODE_ENV === 'development';
+  const isDevMode = useDevToolsEnabled();
 
   const [userOverride, setUserOverrideState] = useState<UserOverride | null>(null);
   const [isPanelExpanded, setIsPanelExpanded] = useState(false);
