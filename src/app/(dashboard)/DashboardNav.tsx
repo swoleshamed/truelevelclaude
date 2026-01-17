@@ -21,12 +21,13 @@ interface DashboardNavProps {
  * WHY: Provides consistent bottom navigation across all dashboard pages.
  * Wraps BottomNav component with route-aware navigation items.
  *
+ * URL-AWARE: Navigation hrefs dynamically adjust based on current location context.
+ *
  * NAVIGATION ITEMS BY ROLE:
  * - Distributors: Overview, Activity, [Action], Products, Analytics
  * - Others: Dashboard, Chemicals, Visits, Calendar
  */
 export function DashboardNav({ userRole }: DashboardNavProps) {
-  const pathname = usePathname();
   const router = useRouter();
   const { action } = useFAB();
 
@@ -56,8 +57,8 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
           />
         </svg>
       ),
-      onClick: () => router.push('/dashboard'),
-      active: pathname === '/dashboard',
+      onClick: () => router.push(buildDashboardUrl(location)),
+      active: currentPage === undefined,
     },
     {
       id: 'activity',
@@ -77,8 +78,8 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
           />
         </svg>
       ),
-      onClick: () => router.push('/dashboard/activity'),
-      active: pathname.startsWith('/dashboard/activity'),
+      onClick: () => router.push(buildDashboardUrl(location, 'activity')),
+      active: currentPage === 'activity',
     },
     {
       id: 'products',
@@ -98,8 +99,8 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
           />
         </svg>
       ),
-      onClick: () => router.push('/dashboard/products'),
-      active: pathname.startsWith('/dashboard/products'),
+      onClick: () => router.push(buildDashboardUrl(location, 'products')),
+      active: currentPage === 'products',
     },
     {
       id: 'analytics',
@@ -119,8 +120,8 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
           />
         </svg>
       ),
-      onClick: () => router.push('/dashboard/analytics'),
-      active: pathname.startsWith('/dashboard/analytics'),
+      onClick: () => router.push(buildDashboardUrl(location, 'analytics')),
+      active: currentPage === 'analytics',
     },
   ];
 
@@ -148,7 +149,7 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
         </svg>
       ),
       onClick: () => router.push('/dashboard'),
-      active: pathname === '/dashboard',
+      active: currentPage === undefined,
     },
     {
       id: 'chemicals',
@@ -169,7 +170,7 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
         </svg>
       ),
       onClick: () => router.push('/chemicals'),
-      active: pathname.startsWith('/chemicals'),
+      active: false, // TODO: Update when chemicals routes are scoped
     },
     {
       id: 'visits',
@@ -190,7 +191,7 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
         </svg>
       ),
       onClick: () => router.push('/visits'),
-      active: pathname.startsWith('/visits'),
+      active: false, // TODO: Update when visits routes are scoped
     },
     {
       id: 'calendar',
@@ -211,7 +212,7 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
         </svg>
       ),
       onClick: () => router.push('/calendar'),
-      active: pathname.startsWith('/calendar'),
+      active: false, // TODO: Update when calendar routes are scoped
     },
   ];
 

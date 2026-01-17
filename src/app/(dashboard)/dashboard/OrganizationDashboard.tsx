@@ -8,6 +8,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useLocation } from '@/contexts/LocationContext';
 import { Card, StatusBadge } from '@/components/ui';
 import { PageContainer, PageHeader } from '@/components/layout';
@@ -22,6 +23,7 @@ interface OrganizationDashboardProps {
   };
   organizationId: string;
   organizationName: string;
+  organizationSlug?: string;
 }
 
 /**
@@ -30,9 +32,9 @@ interface OrganizationDashboardProps {
  * WHY: Organization admins need to see all their sites and monitor inventory,
  * costs, and performance across their car wash locations.
  *
- * VIEWS (PRD Section 6.2):
- * - ORG: Aggregate view of all sites with stats
- * - SITE: Specific site details (delegates to SiteDashboard)
+ * URL-AWARE VIEWS:
+ * - /dashboard/o/[orgSlug] (ORG): Aggregate view of all sites with stats
+ * - /dashboard/o/[orgSlug]/s/[siteSlug] (SITE): Specific site details
  *
  * FEATURES:
  * - Site list with status indicators
@@ -51,8 +53,9 @@ export function OrganizationDashboard({
   user,
   organizationId,
   organizationName,
+  organizationSlug = 'default-org',
 }: OrganizationDashboardProps) {
-  const { location, setLocation } = useLocation();
+  const { location } = useLocation();
 
   /**
    * Configure FAB action based on current view
@@ -77,6 +80,7 @@ export function OrganizationDashboard({
     {
       id: '1',
       name: 'Main Street Location',
+      slug: 'main-street',
       address: '123 Main St',
       criticalTanks: 2,
       avgCostPerCar: 0.42,
@@ -86,6 +90,7 @@ export function OrganizationDashboard({
     {
       id: '2',
       name: 'Highway 101 Location',
+      slug: 'highway-101',
       address: '456 Highway 101',
       criticalTanks: 0,
       avgCostPerCar: 0.38,
@@ -95,6 +100,7 @@ export function OrganizationDashboard({
     {
       id: '3',
       name: 'Downtown Location',
+      slug: 'downtown',
       address: '789 Downtown Ave',
       criticalTanks: 1,
       avgCostPerCar: 0.45,
@@ -114,15 +120,16 @@ export function OrganizationDashboard({
               {
                 id: organizationId,
                 name: organizationName,
+                slug: organizationSlug,
                 sites: mockSites.map((site) => ({
                   id: site.id,
                   name: site.name,
+                  slug: site.slug,
                   organizationId: organizationId,
                 })),
               },
             ]}
             currentLocation={location}
-            onLocationChange={setLocation}
             canAddNew={true}
             onAddNew={() => {
               // TODO: Open add site modal
@@ -188,58 +195,52 @@ export function OrganizationDashboard({
             </h2>
             <div className="space-y-3">
               {mockSites.map((site) => (
-                <Card
+                <Link
                   key={site.id}
-                  className="cursor-pointer hover:border-primary transition-colors"
-                  onClick={() =>
-                    setLocation({
-                      type: 'SITE',
-                      siteId: site.id,
-                      siteName: site.name,
-                      organizationId,
-                      organizationName,
-                    })
-                  }
+                  href={`/dashboard/o/${organizationSlug}/s/${site.slug}`}
+                  className="block"
                 >
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="text-lg font-semibold text-text-primary mb-1">
-                          {site.name}
-                        </h3>
-                        <p className="text-sm text-text-secondary">
-                          {site.address}
-                        </p>
+                  <Card className="cursor-pointer hover:border-primary transition-colors">
+                    <div className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="text-lg font-semibold text-text-primary mb-1">
+                            {site.name}
+                          </h3>
+                          <p className="text-sm text-text-secondary">
+                            {site.address}
+                          </p>
+                        </div>
+                        {site.criticalTanks > 0 && (
+                          <StatusBadge
+                            status="CRITICAL"
+                            label={`${site.criticalTanks} Critical`}
+                          />
+                        )}
                       </div>
-                      {site.criticalTanks > 0 && (
-                        <StatusBadge
-                          status="CRITICAL"
-                          label={`${site.criticalTanks} Critical`}
-                        />
-                      )}
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-text-tertiary">Cars Today</p>
+                          <p className="text-text-primary font-medium">
+                            {site.carsToday}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-text-tertiary">Cost/Car</p>
+                          <p className="text-text-primary font-medium">
+                            ${site.avgCostPerCar.toFixed(2)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-text-tertiary">Last Visit</p>
+                          <p className="text-text-secondary">
+                            {new Date(site.lastVisit).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-text-tertiary">Cars Today</p>
-                        <p className="text-text-primary font-medium">
-                          {site.carsToday}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-text-tertiary">Cost/Car</p>
-                        <p className="text-text-primary font-medium">
-                          ${site.avgCostPerCar.toFixed(2)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-text-tertiary">Last Visit</p>
-                        <p className="text-text-secondary">
-                          {new Date(site.lastVisit).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>

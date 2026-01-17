@@ -213,6 +213,11 @@ export interface ChemicalCostBreakdown {
  * - ALL: View all organizations/sites (distributor only)
  * - ORG: View specific organization with all sites
  * - SITE: View specific site details
+ *
+ * URL STRUCTURE:
+ * - ALL: /dashboard
+ * - ORG: /dashboard/o/[orgSlug]
+ * - SITE: /dashboard/o/[orgSlug]/s/[siteSlug]
  */
 export type LocationContext =
   | {
@@ -222,11 +227,33 @@ export type LocationContext =
       type: 'ORG';
       organizationId: string;
       organizationName: string;
+      organizationSlug: string;
     }
   | {
       type: 'SITE';
       siteId: string;
       siteName: string;
+      siteSlug: string;
       organizationId: string;
       organizationName: string;
+      organizationSlug: string;
     };
+
+/**
+ * Build dashboard URL based on location context
+ * WHY: Centralized URL generation for scoped dashboard routing
+ */
+export function buildDashboardUrl(
+  location: LocationContext,
+  page?: 'activity' | 'products' | 'analytics'
+): string {
+  let basePath = '/dashboard';
+
+  if (location.type === 'ORG') {
+    basePath = `/dashboard/o/${location.organizationSlug}`;
+  } else if (location.type === 'SITE') {
+    basePath = `/dashboard/o/${location.organizationSlug}/s/${location.siteSlug}`;
+  }
+
+  return page ? `${basePath}/${page}` : basePath;
+}
