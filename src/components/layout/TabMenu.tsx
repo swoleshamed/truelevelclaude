@@ -19,8 +19,16 @@ export interface TabMenuItem {
   icon?: React.ReactNode;
 }
 
+export interface TabMenuAction {
+  label: string;
+  icon?: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}
+
 interface TabMenuProps {
   items: TabMenuItem[];
+  action?: TabMenuAction | null;
   className?: string;
 }
 
@@ -33,6 +41,7 @@ interface TabMenuProps {
  * DESIGN:
  * - Horizontal tabs with pill-style active state
  * - Active tab has primary (green) background
+ * - Optional action button on the far right
  * - Visible on md+ breakpoints (768px and above)
  * - Hidden on mobile (< 768px) where BottomNav takes over
  *
@@ -41,7 +50,7 @@ interface TabMenuProps {
  * - Tablet (768px - 1023px): Visible, centered tabs
  * - Desktop (1024px+): Visible, with more spacing
  */
-export function TabMenu({ items, className }: TabMenuProps) {
+export function TabMenu({ items, action, className }: TabMenuProps) {
   const pathname = usePathname();
 
   // Determine active tab based on current pathname
@@ -54,6 +63,22 @@ export function TabMenu({ items, className }: TabMenuProps) {
     return pathname.startsWith(href);
   };
 
+  const defaultActionIcon = (
+    <svg
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 4v16m8-8H4"
+      />
+    </svg>
+  );
+
   return (
     <nav
       className={cn(
@@ -65,29 +90,51 @@ export function TabMenu({ items, className }: TabMenuProps) {
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-start gap-1 py-2">
-          {items.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                className={cn(
-                  // Base styles
-                  'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-150',
-                  // Focus states
-                  'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1',
-                  // Active vs inactive states
-                  active
-                    ? 'bg-primary text-text-inverse shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
-                )}
-              >
-                {item.icon && <span className="w-5 h-5">{item.icon}</span>}
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+        <div className="flex items-center justify-between py-2">
+          {/* Navigation tabs */}
+          <div className="flex items-center gap-1">
+            {items.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className={cn(
+                    // Base styles
+                    'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-150',
+                    // Focus states
+                    'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1',
+                    // Active vs inactive states
+                    active
+                      ? 'bg-primary text-text-inverse shadow-sm'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
+                  )}
+                >
+                  {item.icon && <span className="w-5 h-5">{item.icon}</span>}
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Action button on far right */}
+          {action && (
+            <button
+              onClick={action.onClick}
+              disabled={action.disabled}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm',
+                'bg-primary text-text-inverse shadow-sm',
+                'transition-all duration-150',
+                'hover:bg-primary-hover active:bg-primary-active',
+                'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1',
+                'disabled:opacity-50 disabled:cursor-not-allowed'
+              )}
+            >
+              {action.icon || defaultActionIcon}
+              <span>{action.label}</span>
+            </button>
+          )}
         </div>
       </div>
     </nav>

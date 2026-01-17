@@ -18,8 +18,17 @@ interface NavItem {
   active?: boolean;
 }
 
+export interface BottomNavAction {
+  label: string;
+  icon?: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}
+
 interface BottomNavProps {
   items: NavItem[];
+  action?: BottomNavAction | null;
+  actionPosition?: number; // Index where to insert the action button
   className?: string;
 }
 
@@ -32,9 +41,8 @@ interface BottomNavProps {
  * DESIGN (UI Spec):
  * ```
  * ┌─────────────────────────────────────────────────────────────┐
- * │              [+] FAB (floats above)                         │
- * │ [🏠] [📋] [🧪] [📊]                                        │
- * │ Over  Act  Chem  Analytics                                  │
+ * │ [🏠] [📋] [+] [🧪] [📊]                                     │
+ * │ Over  Act  Add  Prod  Analytics                              │
  * └─────────────────────────────────────────────────────────────┘
  * ```
  *
@@ -42,39 +50,86 @@ interface BottomNavProps {
  * - Mobile (< 768px): Always visible at bottom
  * - Tablet/Desktop (≥ 768px): Hidden (uses horizontal tabs instead)
  *
- * NAVIGATION ITEMS CHANGE BY LOCATION CONTEXT (PRD Section 5):
- * - All Locations: Overview | Activity | Chemicals | Analytics
- * - Organization: Overview | Activity | Wash Packages | Analytics
- * - Site: Overview | Activity | Wash Packages | Analytics | Settings
- *
- * Note: Site settings is accessible via different means on mobile
- * to keep bottom nav to 4 items max.
- *
- * EXAMPLE:
- * ```tsx
- * <BottomNav
- *   items={[
- *     {
- *       id: 'overview',
- *       label: 'Overview',
- *       icon: <HomeIcon />,
- *       onClick: () => setActiveTab('overview'),
- *       active: activeTab === 'overview'
- *     },
- *     {
- *       id: 'activity',
- *       label: 'Activity',
- *       icon: <ActivityIcon />,
- *       onClick: () => setActiveTab('activity'),
- *       active: activeTab === 'activity'
- *     }
- *   ]}
- * />
- * ```
- *
  * @param items - Array of navigation items
+ * @param action - Optional action button to display
+ * @param actionPosition - Index where to insert the action (default: 2, after Activity)
  */
-export function BottomNav({ items, className }: BottomNavProps) {
+export function BottomNav({ items, action, actionPosition = 2, className }: BottomNavProps) {
+  const defaultActionIcon = (
+    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 4v16m8-8H4"
+      />
+    </svg>
+  );
+
+  // Build the items array with action inserted at the specified position
+  const renderItems = () => {
+    const result: React.ReactNode[] = [];
+
+    items.forEach((item, index) => {
+      // Insert action button at the specified position
+      if (action && index === actionPosition) {
+        result.push(
+          <button
+            key="action"
+            onClick={action.onClick}
+            disabled={action.disabled}
+            className={cn(
+              'flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md transition-colors duration-150 min-w-[4rem]',
+              'text-primary',
+              'disabled:opacity-50 disabled:cursor-not-allowed'
+            )}
+          >
+            <div className="w-6 h-6">{action.icon || defaultActionIcon}</div>
+            <span className="text-xs font-medium truncate">{action.label}</span>
+          </button>
+        );
+      }
+
+      // Add the regular nav item
+      result.push(
+        <button
+          key={item.id}
+          onClick={item.onClick}
+          className={cn(
+            'flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md transition-colors duration-150 min-w-[4rem]',
+            item.active
+              ? 'text-primary'
+              : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
+          )}
+        >
+          <div className="w-6 h-6">{item.icon}</div>
+          <span className="text-xs font-medium truncate">{item.label}</span>
+        </button>
+      );
+    });
+
+    // If action position is at the end or beyond items length
+    if (action && actionPosition >= items.length) {
+      result.push(
+        <button
+          key="action"
+          onClick={action.onClick}
+          disabled={action.disabled}
+          className={cn(
+            'flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md transition-colors duration-150 min-w-[4rem]',
+            'text-primary',
+            'disabled:opacity-50 disabled:cursor-not-allowed'
+          )}
+        >
+          <div className="w-6 h-6">{action.icon || defaultActionIcon}</div>
+          <span className="text-xs font-medium truncate">{action.label}</span>
+        </button>
+      );
+    }
+
+    return result;
+  };
+
   return (
     <nav
       className={cn(
@@ -88,24 +143,7 @@ export function BottomNav({ items, className }: BottomNavProps) {
       )}
     >
       <div className="flex items-center justify-around h-16 px-2">
-        {items.map((item) => (
-          <button
-            key={item.id}
-            onClick={item.onClick}
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-md transition-colors duration-150 min-w-[4rem]',
-              item.active
-                ? 'text-primary'
-                : 'text-text-secondary hover:text-text-primary hover:bg-bg-tertiary'
-            )}
-          >
-            {/* Icon */}
-            <div className="w-6 h-6">{item.icon}</div>
-
-            {/* Label */}
-            <span className="text-xs font-medium truncate">{item.label}</span>
-          </button>
-        ))}
+        {renderItems()}
       </div>
     </nav>
   );

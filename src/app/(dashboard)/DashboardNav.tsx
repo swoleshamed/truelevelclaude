@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { BottomNav } from '@/components/layout';
+import { BottomNav, useFAB } from '@/components/layout';
 
 interface DashboardNavProps {
   userRole: string;
@@ -22,12 +22,13 @@ interface DashboardNavProps {
  * Wraps BottomNav component with route-aware navigation items.
  *
  * NAVIGATION ITEMS BY ROLE:
- * - Distributors: Overview, Activity, Products, Analytics
+ * - Distributors: Overview, Activity, [Action], Products, Analytics
  * - Others: Dashboard, Chemicals, Visits, Calendar
  */
 export function DashboardNav({ userRole }: DashboardNavProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { action } = useFAB();
 
   const isDistributor =
     userRole === 'DISTRIBUTOR_ADMIN' || userRole === 'DISTRIBUTOR_USER';
@@ -216,5 +217,13 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
 
   const navItems = isDistributor ? distributorNavItems : defaultNavItems;
 
-  return <BottomNav items={navItems} />;
+  // For distributors, insert action after Activity (position 2)
+  // For others, no action button in the nav
+  return (
+    <BottomNav
+      items={navItems}
+      action={isDistributor ? action : null}
+      actionPosition={2}
+    />
+  );
 }

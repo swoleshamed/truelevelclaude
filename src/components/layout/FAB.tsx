@@ -160,15 +160,8 @@ export function FABProvider({ children }: { children: React.ReactNode }) {
   return (
     <FABContext.Provider value={{ action, setAction }}>
       {children}
-      {/* Render FAB if action is set */}
-      {action && (
-        <FAB
-          onClick={action.onClick}
-          label={action.label}
-          icon={action.icon}
-          disabled={action.disabled}
-        />
-      )}
+      {/* FAB is now rendered in TabMenu (desktop/tablet) and BottomNav (mobile) */}
+      {/* instead of as a floating button */}
     </FABContext.Provider>
   );
 }
