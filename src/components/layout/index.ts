@@ -8,3 +8,4 @@ export { Header } from './Header';
 export { BottomNav, NavIcons } from './BottomNav';
 export { PageContainer, PageHeader, PageSection } from './PageContainer';
 export { FAB, FABProvider, useFAB, useFABAction, type FABAction } from './FAB';
+export { TabMenu, TabMenuIcons, type TabMenuItem } from './TabMenu';

@@ -11,6 +11,7 @@ import { Header } from '@/components/layout';
 import { LocationProvider } from '@/contexts/LocationContext';
 import { FABProvider } from '@/components/layout/FAB';
 import { DashboardNav } from './DashboardNav';
+import { DistributorTabMenu } from './DistributorTabMenu';
 
 /**
  * Dashboard Layout Component
@@ -29,6 +30,8 @@ import { DashboardNav } from './DashboardNav';
  * ```
  * ┌─────────────────────────────────┐
  * │ Header (fixed top)              │
+ * ├─────────────────────────────────┤
+ * │ Tab Menu (tablet/desktop only)  │
  * ├─────────────────────────────────┤
  * │                                 │
  * │ Main Content                    │
@@ -53,6 +56,11 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
+  // Check if user is a distributor for tab menu
+  const isDistributor =
+    session.user.role === 'DISTRIBUTOR_ADMIN' ||
+    session.user.role === 'DISTRIBUTOR_USER';
+
   return (
     <LocationProvider>
       <FABProvider>
@@ -67,11 +75,14 @@ export default async function DashboardLayout({
             }}
           />
 
+          {/* Tab menu for tablet/desktop - shown for distributor users */}
+          {isDistributor && <DistributorTabMenu />}
+
           {/* Main content with padding for bottom nav */}
           <main className="pb-16 lg:pb-8">{children}</main>
 
           {/* Bottom navigation for mobile */}
-          <DashboardNav />
+          <DashboardNav userRole={session.user.role} />
         </div>
       </FABProvider>
     </LocationProvider>
