@@ -48,10 +48,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse and validate request body
     const body = await request.json();
-    console.log('Registration request body:', JSON.stringify(body, null, 2));
-
     const validatedData = registrationSchema.parse(body);
-    console.log('Validated data:', JSON.stringify(validatedData, null, 2));
 
     const {
       accountType,
@@ -212,13 +209,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generic error response - include error details for debugging
+    // Generic error response
     return NextResponse.json(
-      {
-        error: `Registration failed: ${error.message || 'Unknown error'}`,
-        code: error.code,
-        name: error.name,
-      },
+      { error: 'Registration failed. Please try again.' },
       { status: 500 }
     );
   }
