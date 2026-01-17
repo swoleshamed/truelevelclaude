@@ -2,7 +2,7 @@
 // FILE: src/components/layout/BottomNav.tsx
 // PURPOSE: Mobile bottom navigation bar
 // PRD REFERENCE: PRD Section 5 - Navigation Architecture, UI Spec - Bottom Navigation
-// USED BY: Dashboard layout on mobile devices (< 1024px)
+// USED BY: Dashboard layout on mobile devices (< 768px)
 // ===========================================
 
 'use client';
@@ -27,7 +27,7 @@ interface BottomNavProps {
  * BottomNav Component
  *
  * WHY: Mobile-first navigation pattern. Bottom nav bar is easier to reach
- * on mobile devices than top tabs. Hidden on desktop (≥ 1024px).
+ * on mobile devices than top tabs. Hidden on tablet/desktop (≥ 768px).
  *
  * DESIGN (UI Spec):
  * ```
@@ -39,8 +39,8 @@ interface BottomNavProps {
  * ```
  *
  * RESPONSIVE BEHAVIOR:
- * - Mobile (< 1024px): Always visible at bottom
- * - Desktop (≥ 1024px): Hidden (uses horizontal tabs instead)
+ * - Mobile (< 768px): Always visible at bottom
+ * - Tablet/Desktop (≥ 768px): Hidden (uses horizontal tabs instead)
  *
  * NAVIGATION ITEMS CHANGE BY LOCATION CONTEXT (PRD Section 5):
  * - All Locations: Overview | Activity | Chemicals | Analytics
@@ -82,8 +82,8 @@ export function BottomNav({ items, className }: BottomNavProps) {
         'fixed bottom-0 left-0 right-0 z-20 bg-bg-secondary border-t border-border-light',
         // Padding for safe area (iOS notch, etc.)
         'pb-safe-bottom',
-        // Hidden on desktop
-        'lg:hidden',
+        // Hidden on tablet/desktop (where TabMenu is shown)
+        'md:hidden',
         className
       )}
     >
