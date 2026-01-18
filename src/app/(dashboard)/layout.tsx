@@ -15,6 +15,7 @@ import { DevToolPanel } from '@/components/dev';
 import { DashboardNav } from './DashboardNav';
 import { DistributorTabMenu } from './DistributorTabMenu';
 import { OrganizationTabMenu } from './OrganizationTabMenu';
+import { SiteTabMenu } from './SiteTabMenu';
 
 /**
  * Dashboard Layout Component
@@ -75,14 +76,16 @@ export default async function DashboardLayout({
                 }}
               />
 
-              {/* Tab menu for tablet/desktop - handles role-based visibility internally */}
-              <DistributorTabMenu actualRole={session.user.role} />
+              {/* Tab menus for tablet/desktop - each renders based on location.type */}
+              <DistributorTabMenu />
+              <OrganizationTabMenu />
+              <SiteTabMenu />
 
               {/* Main content with padding for bottom nav */}
               <main className="pb-16 lg:pb-8">{children}</main>
 
               {/* Bottom navigation for mobile */}
-              <DashboardNav userRole={session.user.role} />
+              <DashboardNav />
 
               {/* Dev tool panel (only visible when enabled) */}
               <DevToolPanel />

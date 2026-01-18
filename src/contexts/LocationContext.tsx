@@ -128,11 +128,12 @@ export function useLocation() {
  *
  * @returns The current tab page or undefined for overview
  */
-export function useCurrentPage(): 'activity' | 'products' | 'analytics' | undefined {
+export function useCurrentPage(): 'activity' | 'chemicals' | 'wash-packages' | 'analytics' | undefined {
   const pathname = usePathname();
 
   if (pathname.endsWith('/activity')) return 'activity';
-  if (pathname.endsWith('/products')) return 'products';
+  if (pathname.endsWith('/chemicals')) return 'chemicals';
+  if (pathname.endsWith('/wash-packages')) return 'wash-packages';
   if (pathname.endsWith('/analytics')) return 'analytics';
 
   return undefined;

@@ -240,12 +240,18 @@ export type LocationContext =
     };
 
 /**
+ * Dashboard page types for navigation
+ * WHY: Centralized type for all dashboard sub-pages
+ */
+export type DashboardPage = 'activity' | 'chemicals' | 'wash-packages' | 'analytics';
+
+/**
  * Build dashboard URL based on location context
  * WHY: Centralized URL generation for scoped dashboard routing
  */
 export function buildDashboardUrl(
   location: LocationContext,
-  page?: 'activity' | 'products' | 'analytics'
+  page?: DashboardPage
 ): string {
   let basePath = '/dashboard';
 

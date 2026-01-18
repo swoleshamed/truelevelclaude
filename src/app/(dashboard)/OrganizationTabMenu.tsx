@@ -1,64 +1,71 @@
 // ===========================================
 // FILE: src/app/(dashboard)/OrganizationTabMenu.tsx
-// PURPOSE: Tab menu configuration for organization admin users
+// PURPOSE: Tab menu configuration for organization-level view (ORG location)
 // PRD REFERENCE: PRD Section 5 - Navigation Architecture
-// USED BY: Dashboard layout for ORG_ADMIN role
+// USED BY: Dashboard layout when location.type === 'ORG'
 // ===========================================
 
 'use client';
 
 import React from 'react';
 import { TabMenu, TabMenuIcons, useFAB } from '@/components/layout';
-
-// Wash Packages icon
-const WashPackagesIcon = (
-  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-    />
-  </svg>
-);
+import { useLocation, useCurrentPage } from '@/contexts/LocationContext';
+import { buildDashboardUrl } from '@/types';
 
 /**
  * OrganizationTabMenu Component
  *
- * WHY: Provides the tab navigation configuration specific to organization admin users.
- * Organization admins have access to: Overview, Activity, Wash Packages, Analytics
+ * WHY: Provides the tab navigation for organization-level view.
+ * Shows: Overview, Activity, Wash Packages, Analytics
  * Also includes context-aware action button on the far right.
+ *
+ * LOCATION-BASED: Only renders when location.type === 'ORG'
+ * This represents viewing a specific organization's sites.
+ *
+ * URL-AWARE: Tab hrefs dynamically adjust based on current organization:
+ * /dashboard/o/[orgSlug], /dashboard/o/[orgSlug]/activity, etc.
  *
  * VISIBLE: Only on tablet (md) and desktop (lg+) breakpoints
  * HIDDEN: On mobile where BottomNav is used
  */
 export function OrganizationTabMenu() {
   const { action } = useFAB();
+  const { location } = useLocation();
+  const currentPage = useCurrentPage();
+
+  // Only render for organization-level view
+  if (location.type !== 'ORG') {
+    return null;
+  }
 
   const organizationTabs = [
     {
       id: 'overview',
       label: 'Overview',
-      href: '/dashboard',
+      href: buildDashboardUrl(location),
       icon: TabMenuIcons.Overview,
+      active: currentPage === undefined,
     },
     {
       id: 'activity',
       label: 'Activity',
-      href: '/dashboard/activity',
+      href: buildDashboardUrl(location, 'activity'),
       icon: TabMenuIcons.Activity,
+      active: currentPage === 'activity',
     },
     {
       id: 'wash-packages',
       label: 'Wash Packages',
-      href: '/dashboard/wash-packages',
-      icon: WashPackagesIcon,
+      href: buildDashboardUrl(location, 'wash-packages'),
+      icon: TabMenuIcons.WashPackages,
+      active: currentPage === 'wash-packages',
     },
     {
       id: 'analytics',
       label: 'Analytics',
-      href: '/dashboard/analytics',
+      href: buildDashboardUrl(location, 'analytics'),
       icon: TabMenuIcons.Analytics,
+      active: currentPage === 'analytics',
     },
   ];
 
