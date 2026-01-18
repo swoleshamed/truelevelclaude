@@ -11,6 +11,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useDevTool } from '@/contexts/DevToolContext';
+import type { UserRole } from '@/types';
 
 interface HeaderProps {
   user?: {
@@ -67,6 +69,11 @@ export function Header({ user, className }: HeaderProps) {
   const router = useRouter();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const { getEffectiveRole, userOverride, isDevMode } = useDevTool();
+
+  // Get effective role for display (dev tool override takes precedence)
+  const effectiveRole = user ? getEffectiveRole(user.role as UserRole) : null;
+  const isOverridden = isDevMode && userOverride !== null;
 
   /**
    * Handle user sign out
@@ -230,9 +237,20 @@ export function Header({ user, className }: HeaderProps) {
                       <p className="text-xs text-text-secondary mt-0.5">
                         {user.email}
                       </p>
-                      <p className="text-xs text-text-tertiary mt-1">
-                        {formatRole(user.role)}
-                      </p>
+                      {isOverridden ? (
+                        <div className="mt-1">
+                          <p className="text-xs text-amber-600 font-medium">
+                            DEV: {formatRole(effectiveRole || user.role)}
+                          </p>
+                          <p className="text-xs text-text-tertiary line-through">
+                            {formatRole(user.role)}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-text-tertiary mt-1">
+                          {formatRole(user.role)}
+                        </p>
+                      )}
                     </div>
 
                     {/* Menu items */}

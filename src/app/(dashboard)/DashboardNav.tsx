@@ -11,7 +11,8 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { BottomNav, useFAB } from '@/components/layout';
 import { useLocation, useCurrentPage } from '@/contexts/LocationContext';
-import { buildDashboardUrl } from '@/types';
+import { useDevTool } from '@/contexts/DevToolContext';
+import { buildDashboardUrl, type UserRole } from '@/types';
 
 interface DashboardNavProps {
   userRole: string;
@@ -35,10 +36,13 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
   const { action } = useFAB();
   const { location } = useLocation();
   const currentPage = useCurrentPage();
+  const { getEffectiveRole } = useDevTool();
+
+  // Use dev tool override if active, otherwise use actual role
+  const effectiveRole = getEffectiveRole(userRole as UserRole);
 
   const isDistributor =
-    userRole === 'DISTRIBUTOR_ADMIN' || userRole === 'DISTRIBUTOR_USER';
-  const isOrganization = userRole === 'ORG_ADMIN';
+    effectiveRole === 'DISTRIBUTOR_ADMIN' || effectiveRole === 'DISTRIBUTOR_USER';
 
   /**
    * Distributor navigation items
