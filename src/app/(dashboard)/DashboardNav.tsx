@@ -8,7 +8,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { BottomNav, useFAB } from '@/components/layout';
 import { useLocation, useCurrentPage } from '@/contexts/LocationContext';
 import { useDevTool } from '@/contexts/DevToolContext';
@@ -33,6 +33,7 @@ interface DashboardNavProps {
  */
 export function DashboardNav({ userRole }: DashboardNavProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { action } = useFAB();
   const { location } = useLocation();
   const currentPage = useCurrentPage();
@@ -43,6 +44,9 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
 
   const isDistributor =
     effectiveRole === 'DISTRIBUTOR_ADMIN' || effectiveRole === 'DISTRIBUTOR_USER';
+
+  const isOrganization =
+    effectiveRole === 'ORG_ADMIN' || effectiveRole === 'SITE_MANAGER';
 
   /**
    * Distributor navigation items
