@@ -28,6 +28,7 @@ interface DashboardNavProps {
  *
  * NAVIGATION ITEMS BY ROLE:
  * - Distributors: Overview, Activity, [Action], Products, Analytics
+ * - Organizations: Overview, Activity, [Action], Wash Packages, Analytics
  * - Others: Dashboard, Chemicals, Visits, Calendar
  */
 export function DashboardNav({ userRole }: DashboardNavProps) {
@@ -135,7 +136,98 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
   ];
 
   /**
-   * Default navigation items (for non-distributor roles)
+   * Organization navigation items
+   * WHY: Org admins manage wash packages for their sites
+   */
+  const organizationNavItems = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
+          />
+        </svg>
+      ),
+      onClick: () => router.push('/dashboard'),
+      active: pathname === '/dashboard',
+    },
+    {
+      id: 'activity',
+      label: 'Activity',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+          />
+        </svg>
+      ),
+      onClick: () => router.push('/dashboard/activity'),
+      active: pathname.startsWith('/dashboard/activity'),
+    },
+    {
+      id: 'wash-packages',
+      label: 'Packages',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+          />
+        </svg>
+      ),
+      onClick: () => router.push('/dashboard/wash-packages'),
+      active: pathname.startsWith('/dashboard/wash-packages'),
+    },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+      ),
+      onClick: () => router.push('/dashboard/analytics'),
+      active: pathname.startsWith('/dashboard/analytics'),
+    },
+  ];
+
+  /**
+   * Default navigation items (for other roles like SITE_USER)
    * WHY: Different user roles have different navigation needs
    */
   const defaultNavItems = [
@@ -225,14 +317,20 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
     },
   ];
 
-  const navItems = isDistributor ? distributorNavItems : defaultNavItems;
+  // Select nav items based on role
+  const getNavItems = () => {
+    if (isDistributor) return distributorNavItems;
+    if (isOrganization) return organizationNavItems;
+    return defaultNavItems;
+  };
 
-  // For distributors, insert action after Activity (position 2)
-  // For others, no action button in the nav
+  // Distributors and organizations get the action button
+  const showAction = isDistributor || isOrganization;
+
   return (
     <BottomNav
-      items={navItems}
-      action={isDistributor ? action : null}
+      items={getNavItems()}
+      action={showAction ? action : null}
       actionPosition={2}
     />
   );

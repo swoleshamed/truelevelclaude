@@ -7,13 +7,14 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLocation } from '@/contexts/LocationContext';
 import { Card, StatusBadge } from '@/components/ui';
 import { PageContainer, PageHeader } from '@/components/layout';
 import { LocationSwitcher } from '@/components/dashboard';
 import { useFABAction } from '@/components/layout/FAB';
+import { ChevronDown, ChevronRight, MapPin, ArrowRight } from 'lucide-react';
 
 interface DistributorDashboardProps {
   user: {
@@ -50,6 +51,16 @@ interface DistributorDashboardProps {
  */
 export function DistributorDashboard({ user, organizationSlug }: DistributorDashboardProps) {
   const { location } = useLocation();
+
+  // Track which organization is expanded to show locations
+  const [expandedOrgId, setExpandedOrgId] = useState<string | null>(null);
+
+  /**
+   * Toggle organization expansion to show/hide location list
+   */
+  const toggleOrgExpansion = (orgId: string) => {
+    setExpandedOrgId(expandedOrgId === orgId ? null : orgId);
+  };
 
   /**
    * Configure FAB action based on current view
@@ -197,48 +208,93 @@ export function DistributorDashboard({ user, organizationSlug }: DistributorDash
               Your Clients
             </h2>
             <div className="space-y-3">
-              {mockOrganizations.map((org) => (
-                <Link
-                  key={org.id}
-                  href={`/dashboard/o/${org.slug}`}
-                  className="block"
-                >
-                  <Card className="cursor-pointer hover:border-primary transition-colors">
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="text-lg font-semibold text-text-primary mb-1">
-                            {org.name}
-                          </h3>
-                          <p className="text-sm text-text-secondary">
-                            {org.siteCount} {org.siteCount === 1 ? 'site' : 'sites'}
-                          </p>
+              {mockOrganizations.map((org) => {
+                const isExpanded = expandedOrgId === org.id;
+                return (
+                  <div key={org.id}>
+                    <Card className={`transition-colors ${isExpanded ? 'border-primary' : ''}`}>
+                      {/* Organization header - clickable to expand/collapse */}
+                      <button
+                        onClick={() => toggleOrgExpansion(org.id)}
+                        className="w-full text-left p-4 cursor-pointer hover:bg-surface-secondary/50 transition-colors"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-start gap-3">
+                            <div className="mt-1 text-text-tertiary">
+                              {isExpanded ? (
+                                <ChevronDown className="w-5 h-5" />
+                              ) : (
+                                <ChevronRight className="w-5 h-5" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-text-primary mb-1">
+                                {org.name}
+                              </h3>
+                              <p className="text-sm text-text-secondary">
+                                {org.siteCount} {org.siteCount === 1 ? 'site' : 'sites'}
+                              </p>
+                            </div>
+                          </div>
+                          {org.criticalTanks > 0 && (
+                            <StatusBadge
+                              status="CRITICAL"
+                              label={`${org.criticalTanks} Critical`}
+                            />
+                          )}
                         </div>
-                        {org.criticalTanks > 0 && (
-                          <StatusBadge
-                            status="CRITICAL"
-                            label={`${org.criticalTanks} Critical`}
-                          />
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-text-tertiary">Next Visit</p>
-                          <p className="text-text-primary font-medium">
-                            {new Date(org.nextVisit).toLocaleDateString()}
-                          </p>
+                        <div className="grid grid-cols-2 gap-4 text-sm ml-8">
+                          <div>
+                            <p className="text-text-tertiary">Next Visit</p>
+                            <p className="text-text-primary font-medium">
+                              {new Date(org.nextVisit).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-text-tertiary">Last Visit</p>
+                            <p className="text-text-secondary">
+                              {new Date(org.lastVisit).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-text-tertiary">Last Visit</p>
-                          <p className="text-text-secondary">
-                            {new Date(org.lastVisit).toLocaleDateString()}
-                          </p>
+                      </button>
+
+                      {/* Expanded location list */}
+                      {isExpanded && (
+                        <div className="border-t border-border-primary">
+                          {/* View all organization details link */}
+                          <Link
+                            href={`/dashboard/o/${org.slug}`}
+                            className="flex items-center justify-between px-4 py-3 bg-surface-secondary/30 hover:bg-surface-secondary transition-colors text-sm"
+                          >
+                            <span className="text-text-secondary">
+                              View full organization dashboard
+                            </span>
+                            <ArrowRight className="w-4 h-4 text-text-tertiary" />
+                          </Link>
+
+                          {/* Location list */}
+                          <div className="divide-y divide-border-primary">
+                            {org.sites.map((site) => (
+                              <Link
+                                key={site.id}
+                                href={`/dashboard/o/${org.slug}/s/${site.slug}`}
+                                className="flex items-center gap-3 px-4 py-3 hover:bg-surface-secondary/50 transition-colors"
+                              >
+                                <MapPin className="w-4 h-4 text-text-tertiary flex-shrink-0" />
+                                <span className="text-text-primary font-medium">
+                                  {site.name}
+                                </span>
+                                <ArrowRight className="w-4 h-4 text-text-tertiary ml-auto" />
+                              </Link>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
+                      )}
+                    </Card>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

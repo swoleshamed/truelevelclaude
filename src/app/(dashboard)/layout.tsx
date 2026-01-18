@@ -14,6 +14,7 @@ import { FABProvider } from '@/components/layout/FAB';
 import { DevToolPanel } from '@/components/dev';
 import { DashboardNav } from './DashboardNav';
 import { DistributorTabMenu } from './DistributorTabMenu';
+import { OrganizationTabMenu } from './OrganizationTabMenu';
 
 /**
  * Dashboard Layout Component
