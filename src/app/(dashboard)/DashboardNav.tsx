@@ -96,8 +96,8 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
       active: currentPage === 'activity',
     },
     {
-      id: 'products',
-      label: 'Products',
+      id: 'chemical',
+      label: 'Chemical',
       icon: (
         <svg
           className="w-6 h-6"
@@ -113,8 +113,8 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
           />
         </svg>
       ),
-      onClick: () => router.push(buildDashboardUrl(location, 'products')),
-      active: currentPage === 'products',
+      onClick: () => router.push(buildDashboardUrl(location, 'chemical')),
+      active: currentPage === 'chemical',
     },
     {
       id: 'analytics',
