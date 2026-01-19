@@ -1,6 +1,6 @@
 // ===========================================
-// FILE: src/app/(dashboard)/dashboard/products/page.tsx
-// PURPOSE: Products page for distributor dashboard
+// FILE: src/app/(dashboard)/dashboard/chemical/page.tsx
+// PURPOSE: Chemical List page for distributor dashboard
 // PRD REFERENCE: PRD Section 6 - Dashboards
 // ===========================================
 
@@ -11,19 +11,19 @@ import { PageContainer, PageHeader } from '@/components/layout';
 import { Card } from '@/components/ui';
 
 /**
- * Products Page
+ * Chemical List Page
  *
- * WHY: Shows product catalog and inventory for distributor users.
+ * WHY: Shows chemical catalog and inventory for distributor users.
  * This is a placeholder that will be populated with real content.
  *
  * PLANNED FEATURES:
- * - Product catalog with chemicals
+ * - Chemical catalog
  * - Inventory levels
- * - Product categories
+ * - Chemical categories
  * - Pricing information
  * - Quick order actions
  */
-export default async function ProductsPage() {
+export default async function ChemicalListPage() {
   const session = await auth();
 
   if (!session) {
@@ -33,7 +33,7 @@ export default async function ProductsPage() {
   return (
     <PageContainer>
       <PageHeader
-        title="Products"
+        title="Chemical List"
         subtitle="Manage your chemical products and inventory"
       />
 
@@ -57,20 +57,20 @@ export default async function ProductsPage() {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-text-primary mb-2">
-              Product Catalog
+              Chemical Catalog
             </h3>
             <p className="text-text-secondary max-w-md mx-auto">
-              This page will display your complete product catalog including
-              chemicals, pricing, and inventory levels. You&apos;ll be able to manage
-              products and create orders.
+              This page will display your complete chemical catalog including
+              pricing and inventory levels. You&apos;ll be able to manage
+              chemicals and create orders.
             </p>
           </div>
         </Card>
 
-        {/* Sample product grid for layout reference */}
+        {/* Sample chemical grid for layout reference */}
         <div>
           <h2 className="text-lg font-semibold text-text-primary mb-4">
-            Product Categories
+            Chemical Categories
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {['Pre-Soak', 'Foam', 'Rinse Aid', 'Tire Cleaner', 'Wax', 'Drying Agent'].map(
@@ -82,7 +82,7 @@ export default async function ProductsPage() {
                       {category}
                     </h3>
                     <p className="text-sm text-text-secondary">
-                      -- products
+                      -- chemicals
                     </p>
                   </div>
                 </Card>

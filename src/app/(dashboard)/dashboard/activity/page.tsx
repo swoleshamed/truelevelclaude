@@ -32,7 +32,7 @@ export default async function ActivityPage() {
   return (
     <PageContainer>
       <PageHeader
-        title="Activity"
+        title="Activity Log List"
         subtitle="Recent activity and logs across all clients"
       />
 

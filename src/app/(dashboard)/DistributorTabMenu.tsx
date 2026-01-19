@@ -71,11 +71,11 @@ export function DistributorTabMenu({ actualRole }: DistributorTabMenuProps) {
       active: currentPage === 'activity',
     },
     {
-      id: 'products',
-      label: 'Products',
-      href: buildDashboardUrl(location, 'products'),
+      id: 'chemical',
+      label: 'Chemical',
+      href: buildDashboardUrl(location, 'chemical'),
       icon: TabMenuIcons.Products,
-      active: currentPage === 'products',
+      active: currentPage === 'chemical',
     },
     {
       id: 'analytics',

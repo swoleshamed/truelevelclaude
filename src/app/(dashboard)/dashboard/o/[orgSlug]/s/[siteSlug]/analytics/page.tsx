@@ -36,7 +36,7 @@ export default async function SiteAnalyticsPage({ params }: SiteAnalyticsPagePro
   return (
     <PageContainer>
       <PageHeader
-        title="Analytics"
+        title="Analytics Reports"
         subtitle={`Performance metrics for ${mockSiteName}`}
       />
 
