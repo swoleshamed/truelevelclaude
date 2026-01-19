@@ -1,6 +1,6 @@
 // ===========================================
-// FILE: src/app/(dashboard)/dashboard/o/[orgSlug]/products/page.tsx
-// PURPOSE: Organization-scoped products catalog
+// FILE: src/app/(dashboard)/dashboard/o/[orgSlug]/chemical/page.tsx
+// PURPOSE: Organization-scoped chemical catalog
 // ===========================================
 
 import React from 'react';
@@ -9,19 +9,19 @@ import { redirect } from 'next/navigation';
 import { PageContainer, PageHeader } from '@/components/layout';
 import { Card } from '@/components/ui';
 
-interface OrgProductsPageProps {
+interface OrgChemicalPageProps {
   params: Promise<{
     orgSlug: string;
   }>;
 }
 
 /**
- * Organization Products Page
+ * Organization Chemical List Page
  *
- * WHY: Shows products/chemicals configured for a specific organization.
- * URL: /dashboard/o/[orgSlug]/products
+ * WHY: Shows chemicals configured for a specific organization.
+ * URL: /dashboard/o/[orgSlug]/chemical
  */
-export default async function OrgProductsPage({ params }: OrgProductsPageProps) {
+export default async function OrgChemicalListPage({ params }: OrgChemicalPageProps) {
   const session = await auth();
   const { orgSlug } = await params;
 
@@ -29,23 +29,23 @@ export default async function OrgProductsPage({ params }: OrgProductsPageProps) 
     redirect('/login');
   }
 
-  // TODO Phase 5: Fetch organization and product data
+  // TODO Phase 5: Fetch organization and chemical data
   const mockOrgName = 'ABC Car Wash'; // Will be fetched from DB
 
   return (
     <PageContainer>
       <PageHeader
-        title="Products"
+        title="Chemical List"
         subtitle={`Chemical catalog for ${mockOrgName}`}
       />
 
       <Card>
         <div className="p-6 text-center">
           <p className="text-text-secondary">
-            Product catalog for organization: <strong>{orgSlug}</strong>
+            Chemical catalog for organization: <strong>{orgSlug}</strong>
           </p>
           <p className="text-sm text-text-tertiary mt-2">
-            Phase 5 will implement full product management.
+            Phase 5 will implement full chemical management.
           </p>
         </div>
       </Card>

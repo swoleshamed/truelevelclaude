@@ -35,7 +35,7 @@ export default async function OrgAnalyticsPage({ params }: OrgAnalyticsPageProps
   return (
     <PageContainer>
       <PageHeader
-        title="Analytics"
+        title="Analytics Reports"
         subtitle={`Performance metrics for ${mockOrgName}`}
       />
 

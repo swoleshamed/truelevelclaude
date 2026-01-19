@@ -33,7 +33,7 @@ export default async function AnalyticsPage() {
   return (
     <PageContainer>
       <PageHeader
-        title="Analytics"
+        title="Analytics Reports"
         subtitle="Performance insights and reporting"
       />
 

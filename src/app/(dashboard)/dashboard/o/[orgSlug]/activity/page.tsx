@@ -35,7 +35,7 @@ export default async function OrgActivityPage({ params }: OrgActivityPageProps) 
   return (
     <PageContainer>
       <PageHeader
-        title="Activity"
+        title="Activity Log List"
         subtitle={`Recent activity for ${mockOrgName}`}
       />
 

@@ -245,7 +245,7 @@ export type LocationContext =
  */
 export function buildDashboardUrl(
   location: LocationContext,
-  page?: 'activity' | 'products' | 'analytics'
+  page?: 'activity' | 'chemical' | 'analytics'
 ): string {
   let basePath = '/dashboard';
 
