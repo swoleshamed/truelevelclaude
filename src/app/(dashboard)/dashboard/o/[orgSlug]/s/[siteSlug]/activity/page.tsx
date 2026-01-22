@@ -36,7 +36,7 @@ export default async function SiteActivityPage({ params }: SiteActivityPageProps
   return (
     <PageContainer>
       <PageHeader
-        title="Activity"
+        title="Activity Log List"
         subtitle={`Recent activity for ${mockSiteName}`}
       />
 

@@ -251,7 +251,7 @@ export type DashboardPage = 'activity' | 'chemicals' | 'wash-packages' | 'analyt
  */
 export function buildDashboardUrl(
   location: LocationContext,
-  page?: DashboardPage
+  page?: 'activity' | 'chemical' | 'analytics'
 ): string {
   let basePath = '/dashboard';
 

@@ -51,11 +51,11 @@ export function DistributorTabMenu() {
       active: currentPage === 'activity',
     },
     {
-      id: 'chemicals',
-      label: 'Chemicals',
-      href: buildDashboardUrl(location, 'chemicals'),
-      icon: TabMenuIcons.Chemicals,
-      active: currentPage === 'chemicals',
+      id: 'chemical',
+      label: 'Chemical',
+      href: buildDashboardUrl(location, 'chemical'),
+      icon: TabMenuIcons.Products,
+      active: currentPage === 'chemical',
     },
     {
       id: 'analytics',
